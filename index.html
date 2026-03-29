@@ -454,240 +454,321 @@
     </div>
   </div>
 
-  <script>
-    const initialVehicles = [
-      { id: 1, model: '아반떼', number: '123하4567', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', fuelLevel: '100%', updatedAt: '2026-03-29 09:10', note: '점검 완료' },
-      { id: 2, model: '쏘나타', number: '234호5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', fuelLevel: '70%', updatedAt: '2026-03-29 10:40', note: '고객 사용중' },
-      { id: 3, model: 'K5', number: '345허6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', fuelLevel: '50%', updatedAt: '2026-03-29 08:20', note: '' },
-      { id: 4, model: '레이', number: '456하7890', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', fuelLevel: '20%', updatedAt: '2026-03-29 11:05', note: '와이퍼 교체 예정' },
-      { id: 5, model: '모닝', number: '567호8901', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '대차출고', fuelLevel: '100%', updatedAt: '2026-03-29 13:15', note: '' },
-    ];
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    let vehicles = JSON.parse(localStorage.getItem('loanerVehiclesHtml') || 'null') || initialVehicles;
-    vehicles = vehicles.map(v => ({ ...v, fuelLevel: v.fuelLevel || '100%' })).filter(v => v.status === '공장대기' || v.status === '대차출고');
-    let selectedTab = null;
-    let selectedVehicleId = null;
-    let editingId = null;
+const firebaseConfig = {
+  apiKey: "AIzaSyBuRrSsYXv127tT8qBXGE0Yl3L01DUEx5o",
+  authDomain: "joongboocar.firebaseapp.com",
+  projectId: "joongboocar",
+  storageBucket: "joongboocar.firebasestorage.app",
+  messagingSenderId: "888402974013",
+  appId: "1:888402974013:web:4100b87a36889553e4e154"
+};
 
-    function saveStorage() {
-      localStorage.setItem('loanerVehiclesHtml', JSON.stringify(vehicles));
-    }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const vehiclesRef = collection(db, "vehicles");
 
-    function nowStamp() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      return `${y}-${m}-${d} ${hh}:${mm}`;
-    }
+let vehicles = [];
+let selectedTab = null;
+let selectedVehicleId = null;
+let editingId = null;
 
-    function badgeClass(status) {
-      if (status === '공장대기') return 'badge bg-ready';
-      return 'badge bg-out';
-    }
+function nowStamp() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${d} ${hh}:${mm}`;
+}
 
-    function renderStats() {
-      const total = vehicles.length;
-      const ready = vehicles.filter(v => v.status === '공장대기').length;
-      const out = vehicles.filter(v => v.status === '대차출고').length;
-      document.getElementById('count-all').textContent = total;
-      document.getElementById('count-ready').textContent = ready;
-      document.getElementById('count-out').textContent = out;
-    }
+function badgeClass(status) {
+  if (status === "공장대기") return "badge bg-ready";
+  return "badge bg-out";
+}
 
-    function paintActiveTab() {
-      document.getElementById('tab-all').className = 'stat' + (selectedTab === '전체' ? ' active-all' : '');
-      document.getElementById('tab-ready').className = 'stat' + (selectedTab === '공장대기' ? ' active-ready' : '');
-      document.getElementById('tab-out').className = 'stat' + (selectedTab === '대차출고' ? ' active-out' : '');
-    }
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
-    function selectTab(tab) {
-      if (selectedTab === tab) {
-        goHome();
-        return;
-      }
-      selectedTab = tab;
-      paintActiveTab();
-      const toolbar = document.getElementById('toolbar');
-      const card = document.getElementById('vehicleCard');
-      toolbar.classList.add('show');
-      card.classList.add('show');
-      document.getElementById('toolbarTitle').textContent = tab === '전체' ? '전체차량 목록' : `${tab} 차량 목록`;
-      renderVehicles();
-    }
+function renderStats() {
+  const validVehicles = vehicles.filter(v => v.model && v.number);
+  const total = validVehicles.length;
+  const ready = validVehicles.filter(v => v.status === "공장대기").length;
+  const out = validVehicles.filter(v => v.status === "대차출고").length;
 
-    function renderVehicles() {
-      const list = document.getElementById('vehicleList');
-      const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      let filtered = vehicles;
+  document.getElementById("count-all").textContent = total;
+  document.getElementById("count-ready").textContent = ready;
+  document.getElementById("count-out").textContent = out;
+}
 
-      if (selectedTab && selectedTab !== '전체') {
-        filtered = filtered.filter(v => v.status === selectedTab);
-      }
-      if (q) {
-        filtered = filtered.filter(v => v.model.toLowerCase().includes(q) || v.number.toLowerCase().includes(q));
-      }
+function paintActiveTab() {
+  document.getElementById("tab-all").className =
+    "stat" + (selectedTab === "전체" ? " active-all" : "");
+  document.getElementById("tab-ready").className =
+    "stat" + (selectedTab === "공장대기" ? " active-ready" : "");
+  document.getElementById("tab-out").className =
+    "stat" + (selectedTab === "대차출고" ? " active-out" : "");
+}
 
-      if (!selectedTab) {
-        list.innerHTML = '';
-        return;
-      }
+function renderVehicles() {
+  const list = document.getElementById("vehicleList");
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="muted-empty">검색 결과가 없습니다.</div>';
-        return;
-      }
+  let filtered = vehicles.filter(v => v.model && v.number);
 
-      list.innerHTML = filtered.map(vehicle => `
-        <div class="vehicle-item">
-          <div class="vehicle-top">
-            <div>
-              <div class="vehicle-model">${vehicle.model}</div>
-              <div class="vehicle-number">${vehicle.number}</div>
-            </div>
-            <div class="${badgeClass(vehicle.status)}">${vehicle.status}</div>
-          </div>
-          <div class="vehicle-meta">
-            <span>${vehicle.fuel}</span>
-            <span>업데이트 ${vehicle.updatedAt}</span>
-          </div>
-          <div class="vehicle-actions">
-            <button class="btn btn-outline" onclick="openDetail(${vehicle.id})">상세보기</button>
-            <button class="btn btn-outline" onclick="openForm(${vehicle.id})">변경</button>
-          </div>
+  if (selectedTab && selectedTab !== "전체") {
+    filtered = filtered.filter(v => v.status === selectedTab);
+  }
+
+  if (q) {
+    filtered = filtered.filter(v =>
+      (v.model || "").toLowerCase().includes(q) ||
+      (v.number || "").toLowerCase().includes(q)
+    );
+  }
+
+  if (!selectedTab) {
+    list.innerHTML = "";
+    return;
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="muted-empty">검색 결과가 없습니다.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(vehicle => `
+    <div class="vehicle-item">
+      <div class="vehicle-top">
+        <div>
+          <div class="vehicle-model">${escapeHtml(vehicle.model || "")}</div>
+          <div class="vehicle-number">${escapeHtml(vehicle.number || "")}</div>
         </div>
-      `).join('');
-    }
+        <div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>
+      </div>
+      <div class="vehicle-meta">
+        <span>${escapeHtml(vehicle.fuel || "")}</span>
+        <span>업데이트 ${escapeHtml(vehicle.updatedAt || "")}</span>
+      </div>
+      <div class="vehicle-actions">
+        <button class="btn btn-outline" onclick="openDetail('${vehicle.id}')">상세보기</button>
+        <button class="btn btn-outline" onclick="openForm('${vehicle.id}')">변경</button>
+      </div>
+    </div>
+  `).join("");
+}
 
-    function openDetail(id) {
-      const vehicle = vehicles.find(v => v.id === id);
-      if (!vehicle) return;
-      selectedVehicleId = id;
-      document.getElementById('detailModel').textContent = vehicle.model;
-      document.getElementById('detailNumber').textContent = vehicle.number;
-      document.getElementById('detailBadge').innerHTML = `<div class="${badgeClass(vehicle.status)}">${vehicle.status}</div>`;
-      document.getElementById('infoModel').textContent = vehicle.model;
-      document.getElementById('infoNumber').textContent = vehicle.number;
-      document.getElementById('infoFuel').textContent = vehicle.fuel;
-      document.getElementById('infoInsurance').textContent = vehicle.insurance;
-      document.getElementById('infoDriverAge').textContent = vehicle.driverAge;
-      document.getElementById('infoStatus').textContent = vehicle.status;
-      if (vehicle.note) {
-        document.getElementById('infoNoteBox').style.display = 'block';
-        document.getElementById('infoNote').textContent = vehicle.note;
+function selectTab(tab) {
+  if (selectedTab === tab) {
+    goHome();
+    return;
+  }
+
+  selectedTab = tab;
+  paintActiveTab();
+
+  document.getElementById("toolbar").classList.add("show");
+  document.getElementById("vehicleCard").classList.add("show");
+  document.getElementById("toolbarTitle").textContent =
+    tab === "전체" ? "전체차량 목록" : `${tab} 차량 목록`;
+
+  renderVehicles();
+}
+
+function openDetail(id) {
+  const vehicle = vehicles.find(v => v.id === id);
+  if (!vehicle) return;
+
+  selectedVehicleId = id;
+
+  document.getElementById("detailModel").textContent = vehicle.model || "";
+  document.getElementById("detailNumber").textContent = vehicle.number || "";
+  document.getElementById("detailBadge").innerHTML =
+    `<div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>`;
+
+  document.getElementById("infoModel").textContent = vehicle.model || "";
+  document.getElementById("infoNumber").textContent = vehicle.number || "";
+  document.getElementById("infoFuel").textContent = vehicle.fuel || "";
+  document.getElementById("infoInsurance").textContent = vehicle.insurance || "";
+  document.getElementById("infoDriverAge").textContent = vehicle.driverAge || "";
+  document.getElementById("infoStatus").textContent = vehicle.status || "";
+
+  if (vehicle.note) {
+    document.getElementById("infoNoteBox").style.display = "block";
+    document.getElementById("infoNote").textContent = vehicle.note;
+  } else {
+    document.getElementById("infoNoteBox").style.display = "none";
+    document.getElementById("infoNote").textContent = "";
+  }
+
+  document.getElementById("detailModal").classList.add("show");
+}
+
+function closeDetail() {
+  document.getElementById("detailModal").classList.remove("show");
+}
+
+function openForm(id = null) {
+  editingId = id;
+  document.getElementById("formTitle").textContent = id ? "차량 정보 변경" : "차량 추가";
+  document.getElementById("deleteBtn").style.display = id ? "inline-block" : "none";
+
+  const vehicle = vehicles.find(v => v.id === id);
+
+  document.getElementById("formModel").value = vehicle ? (vehicle.model || "") : "";
+  document.getElementById("formNumber").value = vehicle ? (vehicle.number || "") : "";
+  document.getElementById("formFuel").value = vehicle ? (vehicle.fuel || "가솔린") : "가솔린";
+  document.getElementById("formInsurance").value = vehicle ? (vehicle.insurance || "종합보험") : "종합보험";
+  document.getElementById("formDriverAge").value = vehicle ? (vehicle.driverAge || "만 26세 이상") : "만 26세 이상";
+  document.getElementById("formStatus").value = vehicle ? (vehicle.status || "공장대기") : "공장대기";
+  document.getElementById("formFuelLevel").value = vehicle ? (vehicle.fuelLevel || "100%") : "100%";
+  document.getElementById("formNote").value = vehicle ? (vehicle.note || "") : "";
+
+  document.getElementById("formModal").classList.add("show");
+  closeDetail();
+}
+
+function closeForm() {
+  document.getElementById("formModal").classList.remove("show");
+}
+
+async function saveVehicle() {
+  const model = document.getElementById("formModel").value.trim();
+  const number = document.getElementById("formNumber").value.trim();
+  const fuel = document.getElementById("formFuel").value;
+  const insurance = document.getElementById("formInsurance").value.trim();
+  const driverAge = document.getElementById("formDriverAge").value.trim();
+  const status = document.getElementById("formStatus").value;
+  const fuelLevel = document.getElementById("formFuelLevel").value;
+  const note = document.getElementById("formNote").value.trim();
+  const updatedAt = nowStamp();
+
+  if (!model || !number) {
+    alert("차종이랑 차량번호는 입력해야 함");
+    return;
+  }
+
+  const payload = {
+    model,
+    number,
+    fuel,
+    insurance,
+    driverAge,
+    status,
+    fuelLevel,
+    note,
+    updatedAt
+  };
+
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "vehicles", editingId), payload);
+    } else {
+      await addDoc(vehiclesRef, payload);
+    }
+    closeForm();
+  } catch (err) {
+    console.error(err);
+    alert("저장 중 오류가 났습니다.");
+  }
+}
+
+async function deleteVehicle() {
+  if (!editingId) return;
+
+  if (!confirm("삭제할까요?")) return;
+
+  try {
+    await deleteDoc(doc(db, "vehicles", editingId));
+    closeForm();
+  } catch (err) {
+    console.error(err);
+    alert("삭제 중 오류가 났습니다.");
+  }
+}
+
+function goHome() {
+  selectedTab = null;
+  selectedVehicleId = null;
+  document.getElementById("searchInput").value = "";
+  document.getElementById("toolbar").classList.remove("show");
+  document.getElementById("vehicleCard").classList.remove("show");
+  document.getElementById("detailModal").classList.remove("show");
+  paintActiveTab();
+}
+
+window.onclick = function (e) {
+  if (e.target.id === "detailModal") closeDetail();
+  if (e.target.id === "formModal") closeForm();
+};
+
+window.selectTab = selectTab;
+window.openDetail = openDetail;
+window.closeDetail = closeDetail;
+window.openForm = openForm;
+window.closeForm = closeForm;
+window.saveVehicle = saveVehicle;
+window.deleteVehicle = deleteVehicle;
+window.goHome = goHome;
+
+onSnapshot(vehiclesRef, (snapshot) => {
+  vehicles = snapshot.docs
+    .map(d => ({
+      id: d.id,
+      ...d.data()
+    }))
+    .filter(v => v.status === "공장대기" || v.status === "대차출고")
+    .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+
+  renderStats();
+  renderVehicles();
+
+  if (selectedVehicleId) {
+    const current = vehicles.find(v => v.id === selectedVehicleId);
+    if (current) {
+      document.getElementById("detailModel").textContent = current.model || "";
+      document.getElementById("detailNumber").textContent = current.number || "";
+      document.getElementById("detailBadge").innerHTML =
+        `<div class="${badgeClass(current.status)}">${escapeHtml(current.status || "")}</div>`;
+      document.getElementById("infoModel").textContent = current.model || "";
+      document.getElementById("infoNumber").textContent = current.number || "";
+      document.getElementById("infoFuel").textContent = current.fuel || "";
+      document.getElementById("infoInsurance").textContent = current.insurance || "";
+      document.getElementById("infoDriverAge").textContent = current.driverAge || "";
+      document.getElementById("infoStatus").textContent = current.status || "";
+      if (current.note) {
+        document.getElementById("infoNoteBox").style.display = "block";
+        document.getElementById("infoNote").textContent = current.note;
       } else {
-        document.getElementById('infoNoteBox').style.display = 'none';
-        document.getElementById('infoNote').textContent = '';
+        document.getElementById("infoNoteBox").style.display = "none";
+        document.getElementById("infoNote").textContent = "";
       }
-      document.getElementById('detailModal').classList.add('show');
-    }
-
-    function closeDetail() {
-      document.getElementById('detailModal').classList.remove('show');
-    }
-
-    function openForm(id = null) {
-      editingId = id;
-      document.getElementById('formTitle').textContent = id ? '차량 정보 변경' : '차량 추가';
-      document.getElementById('deleteBtn').style.display = id ? 'inline-block' : 'none';
-
-      const vehicle = vehicles.find(v => v.id === id);
-      document.getElementById('formModel').value = vehicle ? vehicle.model : '';
-      document.getElementById('formNumber').value = vehicle ? vehicle.number : '';
-      document.getElementById('formFuel').value = vehicle ? vehicle.fuel : '가솔린';
-      document.getElementById('formInsurance').value = vehicle ? vehicle.insurance : '종합보험';
-      document.getElementById('formDriverAge').value = vehicle ? vehicle.driverAge : '만 26세 이상';
-      document.getElementById('formStatus').value = vehicle ? vehicle.status : '공장대기';
-      document.getElementById('formFuelLevel').value = vehicle ? (vehicle.fuelLevel || '가득') : '100%';
-      document.getElementById('formNote').value = vehicle ? vehicle.note : '';
-      document.getElementById('formModal').classList.add('show');
+    } else {
       closeDetail();
     }
+  }
+});
 
-    function closeForm() {
-      document.getElementById('formModal').classList.remove('show');
-    }
-
-    function saveVehicle() {
-      const model = document.getElementById('formModel').value.trim();
-      const number = document.getElementById('formNumber').value.trim();
-      const fuel = document.getElementById('formFuel').value;
-      const insurance = document.getElementById('formInsurance').value.trim();
-      const driverAge = document.getElementById('formDriverAge').value.trim();
-      const status = document.getElementById('formStatus').value;
-      const fuelLevel = document.getElementById('formFuelLevel').value;
-      const note = document.getElementById('formNote').value.trim();
-
-      if (!model || !number) {
-        alert('차종이랑 차량번호는 입력해야 함');
-        return;
-      }
-
-      const stamp = nowStamp();
-
-      if (editingId) {
-        const vehicle = vehicles.find(v => v.id === editingId);
-        if (vehicle) {
-          vehicle.model = model;
-          vehicle.number = number;
-          vehicle.fuel = fuel;
-          vehicle.insurance = insurance;
-          vehicle.driverAge = driverAge;
-          vehicle.status = status;
-          vehicle.fuelLevel = fuelLevel;
-          vehicle.note = note;
-          vehicle.updatedAt = stamp;
-        }
-      } else {
-        vehicles.unshift({
-          id: Date.now(),
-          model,
-          number,
-          fuel,
-          insurance,
-          driverAge,
-          status,
-          fuelLevel,
-          note,
-          updatedAt: stamp,
-        });
-      }
-
-      vehicles = vehicles.filter(v => v.status === '공장대기' || v.status === '대차출고');
-      saveStorage();
-      renderStats();
-      renderVehicles();
-      closeForm();
-    }
-
-    function deleteVehicle() {
-      if (!editingId) return;
-      vehicles = vehicles.filter(v => v.id !== editingId);
-      saveStorage();
-      renderStats();
-      renderVehicles();
-      closeForm();
-    }
-
-    function goHome() {
-      selectedTab = null;
-      selectedVehicleId = null;
-      document.getElementById('searchInput').value = '';
-      document.getElementById('toolbar').classList.remove('show');
-      document.getElementById('vehicleCard').classList.remove('show');
-      document.getElementById('detailModal').classList.remove('show');
-      paintActiveTab();
-    }
-
-    window.onclick = function(e) {
-      if (e.target.id === 'detailModal') closeDetail();
-      if (e.target.id === 'formModal') closeForm();
-    };
-
-    renderStats();
-    paintActiveTab();
-  </script>
+paintActiveTab();
+renderStats();
+</script>
 </body>
 </html>
