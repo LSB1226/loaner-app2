@@ -6,9 +6,34 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ArrowRightLeft, CheckCircle2, Plus, Pencil, Save, X, Car, Wrench, Home } from 'lucide-react';
+import {
+  Search,
+  ArrowRightLeft,
+  CheckCircle2,
+  Plus,
+  Pencil,
+  Save,
+  X,
+  Car,
+  Wrench,
+} from 'lucide-react';
 
-const initialVehicles = [
+type VehicleStatus = '공장대기' | '대차출고' | '점검중';
+type TabType = '전체' | '공장대기' | '대차출고' | '점검중' | null;
+
+type Vehicle = {
+  id: number;
+  model: string;
+  number: string;
+  fuel: string;
+  insurance: string;
+  driverAge: string;
+  status: VehicleStatus;
+  updatedAt: string;
+  note: string;
+};
+
+const initialVehicles: Vehicle[] = [
   { id: 1, model: '아반떼', number: '123하4567', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:10', note: '점검 완료' },
   { id: 2, model: '쏘나타', number: '234호5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 10:40', note: '고객 사용중' },
   { id: 3, model: 'K5', number: '345허6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', updatedAt: '2026-03-29 08:20', note: '' },
@@ -31,19 +56,19 @@ const emptyForm = {
   fuel: '가솔린',
   insurance: '종합보험',
   driverAge: '만 26세 이상',
-  status: '공장대기',
+  status: '공장대기' as VehicleStatus,
   note: '',
 };
 
-const statusStyles = {
+const statusStyles: Record<VehicleStatus, string> = {
   공장대기: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   대차출고: 'bg-sky-50 text-sky-700 border-sky-200',
   점검중: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: VehicleStatus }) {
   return (
-    <Badge className={`rounded-full border px-3 py-1 text-xs font-medium shadow-sm ${statusStyles[status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+    <Badge className={`rounded-full border px-3 py-1 text-xs font-medium shadow-sm ${statusStyles[status]}`}>
       {status}
     </Badge>
   );
@@ -55,16 +80,17 @@ function nowStamp() {
 }
 
 export default function AccidentLoanerVehicleManager() {
-  const [vehicles, setVehicles] = useState(() => {
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() => {
     if (typeof window === 'undefined') return initialVehicles;
     const saved = window.localStorage.getItem('loaner-vehicles');
     return saved ? JSON.parse(saved) : initialVehicles;
   });
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [query, setQuery] = useState('');
-  const [selectedTab, setSelectedTab] = useState(null); // null | '전체' | '공장대기' | '대차출고' | '점검중'
+  const [selectedTab, setSelectedTab] = useState<TabType>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
 
   React.useEffect(() => {
@@ -103,7 +129,7 @@ export default function AccidentLoanerVehicleManager() {
     setIsFormOpen(true);
   };
 
-  const openEditForm = (vehicle) => {
+  const openEditForm = (vehicle: Vehicle) => {
     setEditingId(vehicle.id);
     setForm({
       model: vehicle.model,
@@ -125,37 +151,37 @@ export default function AccidentLoanerVehicleManager() {
     setSelectedTab(null);
   };
 
-  const updateStatus = (id, nextStatus) => {
+  const updateStatus = (id: number, nextStatus: VehicleStatus) => {
     const stamp = nowStamp();
+
     setVehicles((prev) =>
       prev.map((vehicle) =>
-        vehicle.id === id ? { ...vehicle, status: nextStatus, updatedAt: stamp } : vehicle
+        vehicle.id === id
+          ? { ...vehicle, status: nextStatus, updatedAt: stamp }
+          : vehicle
       )
     );
-    setSelectedVehicle((prev) =>
-      prev && prev.id === id ? { ...prev, status: nextStatus, updatedAt: stamp } : prev
-    );
 
-    setTimeout(() => {
-      goHome();
-    }, 150);
+    setSelectedVehicle(null);
+    setSelectedTab(null);
+    setQuery('');
   };
 
   const saveVehicle = () => {
     if (!form.model.trim() || !form.number.trim()) return;
+
     const stamp = nowStamp();
 
-    if (editingId) {
+    if (editingId !== null) {
       setVehicles((prev) =>
         prev.map((vehicle) =>
-          vehicle.id === editingId ? { ...vehicle, ...form, updatedAt: stamp } : vehicle
+          vehicle.id === editingId
+            ? { ...vehicle, ...form, updatedAt: stamp }
+            : vehicle
         )
       );
-      setSelectedVehicle((prev) =>
-        prev && prev.id === editingId ? { ...prev, ...form, updatedAt: stamp } : prev
-      );
     } else {
-      const newVehicle = {
+      const newVehicle: Vehicle = {
         id: Date.now(),
         ...form,
         updatedAt: stamp,
@@ -163,20 +189,20 @@ export default function AccidentLoanerVehicleManager() {
       setVehicles((prev) => [newVehicle, ...prev]);
     }
 
-    goHome();
     setForm(emptyForm);
+    goHome();
   };
 
-  const deleteVehicle = (id) => {
+  const deleteVehicle = (id: number) => {
     setVehicles((prev) => prev.filter((vehicle) => vehicle.id !== id));
-    if (selectedVehicle?.id === id) setSelectedVehicle(null);
+    setSelectedVehicle(null);
     setIsFormOpen(false);
     setEditingId(null);
   };
 
   const tabButtons = [
     {
-      key: '전체',
+      key: '전체' as TabType,
       label: '전체차량',
       count: stats.total,
       icon: Car,
@@ -184,7 +210,7 @@ export default function AccidentLoanerVehicleManager() {
       idleClass: 'bg-gradient-to-br from-slate-50 to-slate-100 text-slate-700 border-slate-200',
     },
     {
-      key: '공장대기',
+      key: '공장대기' as TabType,
       label: '공장대기',
       count: stats.ready,
       icon: CheckCircle2,
@@ -192,7 +218,7 @@ export default function AccidentLoanerVehicleManager() {
       idleClass: 'bg-gradient-to-br from-emerald-50 to-green-50 text-emerald-700 border-emerald-200',
     },
     {
-      key: '대차출고',
+      key: '대차출고' as TabType,
       label: '대차출고',
       count: stats.out,
       icon: ArrowRightLeft,
@@ -200,7 +226,7 @@ export default function AccidentLoanerVehicleManager() {
       idleClass: 'bg-gradient-to-br from-sky-50 to-blue-50 text-sky-700 border-sky-200',
     },
     {
-      key: '점검중',
+      key: '점검중' as TabType,
       label: '점검',
       count: stats.checking,
       icon: Wrench,
@@ -236,7 +262,7 @@ export default function AccidentLoanerVehicleManager() {
 
             return (
               <button
-                key={tab.key}
+                key={String(tab.key)}
                 onClick={() => setSelectedTab(tab.key)}
                 className={`rounded-3xl border p-5 text-left transition-all duration-200 hover:-translate-y-0.5 ${
                   isActive ? tab.activeClass : tab.idleClass
@@ -279,7 +305,6 @@ export default function AccidentLoanerVehicleManager() {
                   />
                 </div>
                 <Button variant="outline" className="rounded-xl bg-white" onClick={goHome}>
-                  <Home className="mr-2 h-4 w-4" />
                   처음화면
                 </Button>
               </div>
@@ -344,7 +369,7 @@ export default function AccidentLoanerVehicleManager() {
 
                 <div className="space-y-3 text-sm">
                   <Button className="w-full rounded-xl" variant="outline" onClick={goHome}>
-                    <Home className="mr-2 h-4 w-4" /> 처음으로
+                    처음으로
                   </Button>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -385,7 +410,9 @@ export default function AccidentLoanerVehicleManager() {
                       <div className="text-xs text-slate-500">최신 상태</div>
                       <div className="mt-1 font-semibold">{selectedVehicle.status}</div>
                       <div className="mt-1 text-xs text-slate-500">최종 업데이트: {selectedVehicle.updatedAt}</div>
-                      {selectedVehicle.note && <div className="mt-2 text-xs text-slate-600">메모: {selectedVehicle.note}</div>}
+                      {selectedVehicle.note && (
+                        <div className="mt-2 text-xs text-slate-600">메모: {selectedVehicle.note}</div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -416,18 +443,28 @@ export default function AccidentLoanerVehicleManager() {
         <Dialog open={isFormOpen} onOpenChange={(open) => !open && setIsFormOpen(false)}>
           <DialogContent className="sm:max-w-lg rounded-3xl">
             <DialogHeader>
-              <DialogTitle>{editingId ? '차량 정보 수정' : '차량 추가'}</DialogTitle>
+              <DialogTitle>{editingId !== null ? '차량 정보 수정' : '차량 추가'}</DialogTitle>
             </DialogHeader>
 
             <div className="grid gap-4 py-2">
               <div className="grid gap-2">
                 <Label>차종</Label>
-                <Input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="예: K5" />
+                <Input
+                  value={form.model}
+                  onChange={(e) => setForm({ ...form, model: e.target.value })}
+                  placeholder="예: K5"
+                />
               </div>
+
               <div className="grid gap-2">
                 <Label>차량번호</Label>
-                <Input value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} placeholder="예: 123하4567" />
+                <Input
+                  value={form.number}
+                  onChange={(e) => setForm({ ...form, number: e.target.value })}
+                  placeholder="예: 123하4567"
+                />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>유종</Label>
@@ -442,19 +479,33 @@ export default function AccidentLoanerVehicleManager() {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="grid gap-2">
                   <Label>보험</Label>
-                  <Input value={form.insurance} onChange={(e) => setForm({ ...form, insurance: e.target.value })} placeholder="예: 종합보험" />
+                  <Input
+                    value={form.insurance}
+                    onChange={(e) => setForm({ ...form, insurance: e.target.value })}
+                    placeholder="예: 종합보험"
+                  />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>운전자연령</Label>
-                  <Input value={form.driverAge} onChange={(e) => setForm({ ...form, driverAge: e.target.value })} placeholder="예: 만 26세 이상" />
+                  <Input
+                    value={form.driverAge}
+                    onChange={(e) => setForm({ ...form, driverAge: e.target.value })}
+                    placeholder="예: 만 26세 이상"
+                  />
                 </div>
+
                 <div className="grid gap-2">
                   <Label>상태</Label>
-                  <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value })}>
+                  <Select
+                    value={form.status}
+                    onValueChange={(value: VehicleStatus) => setForm({ ...form, status: value })}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="공장대기">공장대기</SelectItem>
@@ -464,22 +515,30 @@ export default function AccidentLoanerVehicleManager() {
                   </Select>
                 </div>
               </div>
+
               <div className="grid gap-2">
                 <Label>메모</Label>
-                <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="간단 메모" />
+                <Input
+                  value={form.note}
+                  onChange={(e) => setForm({ ...form, note: e.target.value })}
+                  placeholder="간단 메모"
+                />
               </div>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
               <div>
-                {editingId && (
+                {editingId !== null && (
                   <Button variant="outline" className="rounded-xl" onClick={() => deleteVehicle(editingId)}>
                     <X className="mr-2 h-4 w-4" /> 삭제
                   </Button>
                 )}
               </div>
+
               <div className="flex gap-2">
-                <Button variant="outline" className="rounded-xl" onClick={() => setIsFormOpen(false)}>취소</Button>
+                <Button variant="outline" className="rounded-xl" onClick={() => setIsFormOpen(false)}>
+                  취소
+                </Button>
                 <Button className="rounded-xl" onClick={saveVehicle}>
                   <Save className="mr-2 h-4 w-4" /> 저장
                 </Button>
