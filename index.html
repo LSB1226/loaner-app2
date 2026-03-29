@@ -511,31 +511,17 @@
 <body>
   <div class="wrap">
     <div class="hero">
-  <div class="hero-top">
-    <div class="hero-brand-wrap">
-      <div class="hero-brand">
-        <span class="hero-brand-dot"></span>
-        <span class="hero-brand-text">중부1급모터스</span>
+      <div class="hero-top">
+        <div class="hero-brand-wrap">
+          <div class="hero-brand">
+            <span class="hero-brand-dot"></span>
+            <span class="hero-brand-text">중부1급모터스</span>
+          </div>
+          <h1 class="hero-title"><span class="accent">중부1급모터스</span> 대차현황</h1>
+        </div>
+        <button class="btn btn-primary" onclick="openForm()">차량 추가</button>
       </div>
-      <h1 class="hero-title">
-        <span class="accent">대차 운영 현황</span>
-      </h1>
     </div>
-  </div>
-</div>
-    background: none;
-    border: none;
-    font-size: 16px;
-    font-weight: 800;
-    color: #1d4ed8;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  ">
-    <span style="font-size:20px;">＋</span> 차량 추가
-  </button>
-</div>
 
     <div class="grid">
       <button class="stat" id="tab-all" onclick="selectTab('전체')"><small>전체차량</small><strong id="count-all">0</strong></button>
@@ -991,30 +977,5 @@ onSnapshot(vehiclesRef, (snapshot) => {
 paintActiveTab();
 renderStats();
   </script>
-  <button onclick="openForm()" 
-onmouseover="this.style.transform='scale(1.1)'"
-onmouseout="this.style.transform='scale(1)'"
-style="
-  position: fixed;
-  right: 20px;
-  bottom: 24px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  font-size: 30px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
-">
-  +
-</button>
-
 </body>
 </html>
