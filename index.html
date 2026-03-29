@@ -511,17 +511,34 @@
 <body>
   <div class="wrap">
     <div class="hero">
-      <div class="hero-top">
-        <div class="hero-brand-wrap">
-          <div class="hero-brand">
-            <span class="hero-brand-dot"></span>
-            <span class="hero-brand-text">중부1급모터스</span>
-          </div>
-          <h1 class="hero-title"> <span class="accent">대차 현황</span>
-        </div>
-        <button class="btn btn-primary" onclick="openForm()">차량 추가</button>
+  <div class="hero-top">
+    <div class="hero-brand-wrap">
+      <div class="hero-brand">
+        <span class="hero-brand-dot"></span>
+        <span class="hero-brand-text">중부1급모터스</span>
       </div>
+      <h1 class="hero-title">
+        <span class="accent">대차 운영 현황</span>
+      </h1>
     </div>
+  </div>
+</div>
+
+<div style="margin: 6px 0 18px 4px;">
+  <button onclick="openForm()" style="
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1d4ed8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  ">
+    <span style="font-size:20px;">＋</span> 차량 추가
+  </button>
+</div>
 
     <div class="grid">
       <button class="stat" id="tab-all" onclick="selectTab('전체')"><small>전체차량</small><strong id="count-all">0</strong></button>
