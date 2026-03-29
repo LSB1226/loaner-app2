@@ -6,84 +6,137 @@
   <title>사고대차 차량 관리앱</title>
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
       background:
-        radial-gradient(circle at top left, #dbeafe 0%, transparent 30%),
-        radial-gradient(circle at top right, #dcfce7 0%, transparent 25%),
-        linear-gradient(180deg, #f8fbff 0%, #eef5ff 45%, #f8fafc 100%);
+        radial-gradient(circle at top left, rgba(30, 41, 59, 0.06) 0%, transparent 24%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.05) 0%, transparent 20%),
+        linear-gradient(180deg, #f3f6fa 0%, #eef2f7 48%, #f8fafc 100%);
       color: #0f172a;
     }
+
     .wrap {
       max-width: 960px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 18px;
     }
+
     .hero {
-      background: linear-gradient(135deg, #0f172a, #1e3a5f 60%, #1d4ed8);
+      background:
+        linear-gradient(135deg, #0b1220 0%, #162033 45%, #1f3453 100%);
       color: white;
-      border-radius: 24px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.16);
+      border-radius: 28px;
+      padding: 26px 24px;
+      margin-bottom: 22px;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.18),
+        inset 0 1px 0 rgba(255,255,255,0.06);
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
     }
+
     .hero::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -70px;
+      top: -70px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      filter: blur(10px);
+    }
+
+    .hero::after {
       content: "";
       position: absolute;
       width: 180px;
       height: 180px;
-      right: -40px;
-      top: -40px;
+      left: -60px;
+      bottom: -90px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      filter: blur(8px);
+      background: rgba(59,130,246,0.14);
+      filter: blur(18px);
     }
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 140px;
-      height: 140px;
-      left: -30px;
-      bottom: -40px;
-      border-radius: 50%;
-      background: rgba(96,165,250,0.22);
-      filter: blur(14px);
-    }
+
     .hero-top {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 14px;
       flex-wrap: wrap;
       position: relative;
       z-index: 1;
     }
-    .chip {
-      display: inline-block;
-      padding: 6px 12px;
+
+    .hero-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      font-size: 13px;
-      margin-bottom: 10px;
-      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(6px);
     }
-    h1 { margin: 0; font-size: 28px; }
+
+    .hero-brand-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #60a5fa;
+      box-shadow: 0 0 10px rgba(96,165,250,0.8);
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+
+    .hero-subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 500;
+    }
+
     .btn {
       border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 16px;
+      padding: 12px 15px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 700;
       transition: 0.18s ease;
     }
+
     .btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: white; color: #0f172a; }
-    .btn-outline { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
-    .btn-danger { background: #ef4444; color: white; }
+
+    .btn-primary {
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+    }
+
+    .btn-outline {
+      background: white;
+      color: #0f172a;
+      border: 1px solid #d6dde8;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
 
     .grid {
       display: grid;
@@ -91,19 +144,26 @@
       gap: 12px;
       margin-bottom: 18px;
     }
+
     .stat {
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 18px;
-      border: 1px solid #dbeafe;
+      border: 1px solid #e5eaf1;
       cursor: pointer;
-      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(241,245,249,0.95));
-      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
       text-align: left;
       font-weight: 700;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
       position: relative;
       overflow: hidden;
+      transition: 0.18s ease;
     }
+
+    .stat:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    }
+
     .stat::after {
       content: "";
       position: absolute;
@@ -111,53 +171,58 @@
       width: 90px;
       height: 90px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.28);
-      filter: blur(8px);
+      background: rgba(148,163,184,0.08);
+      filter: blur(10px);
     }
+
     .stat small {
       display: block;
-      font-size: 13px;
-      color: #475569;
-      margin-bottom: 8px;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 10px;
       position: relative;
       z-index: 1;
+      font-weight: 700;
     }
+
     .stat strong {
-      font-size: 28px;
+      font-size: 30px;
       position: relative;
       z-index: 1;
+      letter-spacing: -0.5px;
     }
+
     .active-all {
-      background: linear-gradient(135deg, #334155, #0f172a 58%, #1d4ed8);
+      background: linear-gradient(135deg, #1e293b, #0f172a 62%, #1d4ed8);
       color: white;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(30, 64, 175, 0.22);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.18);
     }
-    .active-all small { color: rgba(255,255,255,0.88); }
+    .active-all small { color: rgba(255,255,255,0.82); }
 
     .active-ready {
-      background: linear-gradient(135deg, #34d399, #10b981 55%, #059669);
+      background: linear-gradient(135deg, #059669, #10b981 58%, #34d399);
       color: white;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(5, 150, 105, 0.22);
+      box-shadow: 0 16px 30px rgba(5, 150, 105, 0.22);
     }
-    .active-ready small { color: rgba(255,255,255,0.9); }
+    .active-ready small { color: rgba(255,255,255,0.88); }
 
     .active-out {
-      background: linear-gradient(135deg, #ef4444, #dc2626 55%, #b91c1c);
+      background: linear-gradient(135deg, #b91c1c, #dc2626 58%, #ef4444);
       color: white;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(220, 38, 38, 0.25);
+      box-shadow: 0 16px 30px rgba(220, 38, 38, 0.24);
     }
-    .active-out small { color: rgba(255,255,255,0.95); }
+    .active-out small { color: rgba(255,255,255,0.9); }
 
     .active-reserved {
-      background: linear-gradient(135deg, #f59e0b, #d97706 55%, #b45309);
+      background: linear-gradient(135deg, #b45309, #d97706 58%, #f59e0b);
       color: white;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(217, 119, 6, 0.24);
+      box-shadow: 0 16px 30px rgba(217, 119, 6, 0.24);
     }
-    .active-reserved small { color: rgba(255,255,255,0.95); }
+    .active-reserved small { color: rgba(255,255,255,0.9); }
 
     .toolbar {
       display: none;
@@ -167,58 +232,117 @@
       justify-content: space-between;
       margin: 10px 0 14px;
     }
+
     .toolbar.show { display: flex; }
-    .toolbar-left-title { font-size: 20px; font-weight: 800; }
-    .toolbar-left-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
-    .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+
+    .toolbar-left-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .toolbar-left-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
     .search {
       flex: 1;
       min-width: 220px;
-      background: white;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #d6dde8;
+      border-radius: 15px;
       padding: 12px 14px;
       font-size: 14px;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
     }
+
     .card {
       display: none;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.94);
       backdrop-filter: blur(8px);
-      border-radius: 24px;
+      border-radius: 26px;
       padding: 16px;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+      border: 1px solid rgba(226,232,240,0.9);
     }
+
     .card.show { display: block; }
-    .card-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
     .vehicle-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 12px;
     }
+
     .vehicle-item {
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      background: #fff;
+      border: 1px solid #e7edf4;
+      border-radius: 20px;
+      padding: 15px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
     }
+
     .vehicle-top {
       display: flex;
       justify-content: space-between;
       gap: 10px;
       align-items: start;
     }
-    .vehicle-model { font-weight: 800; font-size: 18px; }
-    .vehicle-number { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+    .vehicle-model {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.2px;
+    }
+
+    .vehicle-number {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
     .badge {
       padding: 6px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 800;
       white-space: nowrap;
+      border: 1px solid transparent;
     }
-    .bg-ready { background: #d1fae5; color: #047857; }
-    .bg-out { background: #fee2e2; color: #b91c1c; }
-    .bg-reserved { background: #fef3c7; color: #b45309; }
+
+    .bg-ready {
+      background: #dcfce7;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+
+    .bg-out {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .bg-reserved {
+      background: #fef3c7;
+      color: #b45309;
+      border-color: #fde68a;
+    }
 
     .vehicle-meta {
       display: flex;
@@ -228,12 +352,15 @@
       margin-top: 14px;
       gap: 10px;
     }
+
     .vehicle-actions {
       display: flex;
       gap: 8px;
       margin-top: 12px;
     }
+
     .vehicle-actions .btn { flex: 1; }
+
     .muted-empty {
       text-align: center;
       color: #64748b;
@@ -242,6 +369,7 @@
       border-radius: 18px;
       background: #f8fafc;
     }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -252,16 +380,20 @@
       padding: 16px;
       z-index: 999;
     }
+
     .modal.show { display: flex; }
+
     .modal-box {
       width: 100%;
       max-width: 560px;
       max-height: 90vh;
       overflow: auto;
       background: white;
-      border-radius: 24px;
+      border-radius: 26px;
       padding: 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
     }
+
     .modal-head {
       display: flex;
       justify-content: space-between;
@@ -269,38 +401,64 @@
       gap: 10px;
       margin-bottom: 14px;
     }
-    .modal-title { font-size: 22px; font-weight: 800; }
-    .modal-sub { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-sub {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
     .info-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin: 12px 0;
     }
+
     .info-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 12px;
     }
+
     .info-box.full { grid-column: 1 / -1; }
-    .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
-    .value { font-size: 15px; font-weight: 700; }
+
+    .label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
     .form-grid {
       display: grid;
       gap: 12px;
     }
+
     .form-two {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
+
     .form-group label {
       display: block;
       font-size: 13px;
       font-weight: 700;
       margin-bottom: 6px;
     }
+
     .form-group input,
     .form-group select {
       width: 100%;
@@ -310,6 +468,7 @@
       font-size: 14px;
       background: white;
     }
+
     .form-actions {
       display: flex;
       justify-content: space-between;
@@ -317,18 +476,21 @@
       margin-top: 16px;
       flex-wrap: wrap;
     }
+
     .form-actions-right {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     @media (max-width: 640px) {
       .grid { grid-template-columns: 1fr; }
       .info-grid, .form-two { grid-template-columns: 1fr; }
       .toolbar-right { width: 100%; }
       .btn { width: auto; }
       .vehicle-actions { flex-direction: row; }
-      h1 { font-size: 24px; }
+      .hero-title { font-size: 25px; }
+      .hero { padding: 22px 18px; }
     }
   </style>
 </head>
@@ -337,8 +499,12 @@
     <div class="hero">
       <div class="hero-top">
         <div>
-          <div class="chip">중부1급모터스</div>
-          <h1>대차현황</h1>
+          <div class="hero-brand">
+            <span class="hero-brand-dot"></span>
+            <span>중부1급모터스</span>
+          </div>
+          <h1 class="hero-title">대차현황</h1>
+          <div class="hero-subtitle">사고대차 차량을 한눈에 확인하고 관리할 수 있습니다.</div>
         </div>
         <button class="btn btn-primary" onclick="openForm()">차량 추가</button>
       </div>
