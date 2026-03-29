@@ -1,359 +1,677 @@
-import React, { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CarFront, Search, ArrowRightLeft, Clock3, CheckCircle2, Plus, Pencil, Save, X, Car } from 'lucide-react';
-
-const initialVehicles = [
-  { id: 1, model: '아반떼', number: '123하4567', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:10', note: '세차 완료' },
-  { id: 2, model: '쏘나타', number: '234호5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 10:40', note: '고객 사용중' },
-  { id: 3, model: 'K5', number: '345허6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', updatedAt: '2026-03-29 08:20', note: '' },
-  { id: 4, model: '레이', number: '456하7890', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '점검중', updatedAt: '2026-03-29 11:05', note: '와이퍼 교체 예정' },
-  { id: 5, model: '모닝', number: '567호8901', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '대차출고', updatedAt: '2026-03-29 13:15', note: '' },
-  { id: 6, model: '니로 EV', number: '678하9012', fuel: '전기', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 07:55', note: '충전 82%' },
-  { id: 7, model: '셀토스', number: '789호0123', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 12:00', note: '' },
-  { id: 8, model: '스포티지', number: '890하1234', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:45', note: '' },
-  { id: 9, model: '투싼', number: '901호2345', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '세차중', updatedAt: '2026-03-29 14:05', note: '실내청소 중' },
-  { id: 10, model: '그랜저', number: '112하3456', fuel: 'LPG', insurance: '종합보험', driverAge: '만 30세 이상', status: '대차출고', updatedAt: '2026-03-29 10:05', note: '' },
-  { id: 11, model: '카니발', number: '223호4567', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 08:50', note: '' },
-  { id: 12, model: 'K8', number: '334하5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 30세 이상', status: '대차출고', updatedAt: '2026-03-29 15:00', note: '' },
-  { id: 13, model: 'XM3', number: '445호6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:25', note: '' },
-  { id: 14, model: '코나', number: '556하7890', fuel: '하이브리드', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 11:50', note: '' },
-  { id: 15, model: '캐스퍼', number: '667호8901', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', updatedAt: '2026-03-29 10:30', note: '' },
-];
-
-const emptyForm = {
-  model: '',
-  number: '',
-  fuel: '가솔린',
-  insurance: '종합보험',
-  driverAge: '만 26세 이상',
-  status: '공장대기',
-  note: '',
-};
-
-const statusStyles = {
-  공장대기: 'bg-slate-100 text-slate-700 border-slate-200',
-  대차출고: 'bg-blue-100 text-blue-700 border-blue-200',
-  점검중: 'bg-amber-100 text-amber-700 border-amber-200',
-  세차중: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-};
-
-function StatusBadge({ status }) {
-  return (
-    <Badge className={`rounded-full border px-3 py-1 text-xs font-medium shadow-sm ${statusStyles[status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-      {status}
-    </Badge>
-  );
-}
-
-function nowStamp() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-}
-
-export default function AccidentLoanerVehicleManager() {
-  const [vehicles, setVehicles] = useState(() => {
-    if (typeof window === 'undefined') return initialVehicles;
-    const saved = window.localStorage.getItem('loaner-vehicles');
-    return saved ? JSON.parse(saved) : initialVehicles;
-  });
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [query, setQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('전체');
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('loaner-vehicles', JSON.stringify(vehicles));
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대차현황</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
     }
-  }, [vehicles]);
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: white;
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .add-btn {
+      border: none;
+      background: white;
+      color: #111827;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card, .panel, .vehicle-card, .detail-card, .modal-box {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .stat-card {
+      padding: 16px;
+    }
+    .stat-label {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .search, .select, .input, .textarea {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      background: white;
+    }
+    .search {
+      flex: 1;
+      min-width: 220px;
+    }
+    .select {
+      min-width: 150px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .panel-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .vehicle-card {
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+    }
+    .vehicle-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .vehicle-model {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .vehicle-number {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .vehicle-foot {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      color: #6b7280;
+      font-size: 12px;
+      gap: 8px;
+    }
+    .vehicle-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      align-items: center;
+    }
+    .btn {
+      border: 1px solid #d1d5db;
+      background: white;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn.full {
+      flex: 1;
+    }
+    .btn.icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .btn.primary {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+    .btn.danger {
+      color: #b91c1c;
+      border-color: #fecaca;
+      background: #fff5f5;
+    }
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .공장대기 { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .대차출고 { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+    .점검중 { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+    .세차중 { background: #d1fae5; color: #047857; border-color: #a7f3d0; }
 
-  const filteredVehicles = useMemo(() => {
-    return vehicles.filter((vehicle) => {
-      const q = query.toLowerCase();
-      const matchesQuery = vehicle.model.toLowerCase().includes(q) || vehicle.number.toLowerCase().includes(q);
-      const matchesStatus = statusFilter === '전체' ? true : vehicle.status === statusFilter;
-      return matchesQuery && matchesStatus;
-    });
-  }, [vehicles, query, statusFilter]);
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 560px;
+      padding: 20px;
+      max-height: 90vh;
+      overflow: auto;
+    }
+    .modal-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+    .modal-sub {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .detail-card {
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+    }
+    .detail-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .detail-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .detail-wide {
+      grid-column: span 2;
+    }
+    .status-box {
+      background: #f9fafb;
+    }
+    .section-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .label {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .textarea {
+      min-height: 90px;
+      resize: vertical;
+      width: 100%;
+    }
+    .input, .select {
+      width: 100%;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .modal-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 30px 10px;
+      border: 1px dashed #d1d5db;
+      border-radius: 18px;
+      background: #f9fafb;
+    }
 
-  const stats = useMemo(() => {
-    const total = vehicles.length;
-    const ready = vehicles.filter((v) => v.status === '공장대기').length;
-    const out = vehicles.filter((v) => v.status === '대차출고').length;
-    const checking = vehicles.filter((v) => v.status === '점검중' || v.status === '세차중').length;
-    return { total, ready, out, checking };
-  }, [vehicles]);
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .detail-grid, .form-row-2, .status-grid { grid-template-columns: 1fr; }
+      .detail-wide { grid-column: span 1; }
+      .title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-  const openNewForm = () => {
-    setEditingId(null);
-    setForm(emptyForm);
-    setIsFormOpen(true);
-  };
+  <script type="text/babel">
+    const initialVehicles = [
+      { id: 1, model: '아반떼', number: '123하4567', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:10', note: '세차 완료' },
+      { id: 2, model: '쏘나타', number: '234호5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 10:40', note: '고객 사용중' },
+      { id: 3, model: 'K5', number: '345허6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', updatedAt: '2026-03-29 08:20', note: '' },
+      { id: 4, model: '레이', number: '456하7890', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '점검중', updatedAt: '2026-03-29 11:05', note: '와이퍼 교체 예정' },
+      { id: 5, model: '모닝', number: '567호8901', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '대차출고', updatedAt: '2026-03-29 13:15', note: '' },
+      { id: 6, model: '니로 EV', number: '678하9012', fuel: '전기', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 07:55', note: '충전 82%' },
+      { id: 7, model: '셀토스', number: '789호0123', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 12:00', note: '' },
+      { id: 8, model: '스포티지', number: '890하1234', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:45', note: '' },
+      { id: 9, model: '투싼', number: '901호2345', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '세차중', updatedAt: '2026-03-29 14:05', note: '실내청소 중' },
+      { id: 10, model: '그랜저', number: '112하3456', fuel: 'LPG', insurance: '종합보험', driverAge: '만 30세 이상', status: '대차출고', updatedAt: '2026-03-29 10:05', note: '' },
+      { id: 11, model: '카니발', number: '223호4567', fuel: '디젤', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 08:50', note: '' },
+      { id: 12, model: 'K8', number: '334하5678', fuel: 'LPG', insurance: '종합보험', driverAge: '만 30세 이상', status: '대차출고', updatedAt: '2026-03-29 15:00', note: '' },
+      { id: 13, model: 'XM3', number: '445호6789', fuel: '가솔린', insurance: '종합보험', driverAge: '만 26세 이상', status: '공장대기', updatedAt: '2026-03-29 09:25', note: '' },
+      { id: 14, model: '코나', number: '556하7890', fuel: '하이브리드', insurance: '종합보험', driverAge: '만 26세 이상', status: '대차출고', updatedAt: '2026-03-29 11:50', note: '' },
+      { id: 15, model: '캐스퍼', number: '667호8901', fuel: '가솔린', insurance: '종합보험', driverAge: '만 21세 이상', status: '공장대기', updatedAt: '2026-03-29 10:30', note: '' },
+    ];
 
-  const openEditForm = (vehicle) => {
-    setEditingId(vehicle.id);
-    setForm({
-      model: vehicle.model,
-      number: vehicle.number,
-      fuel: vehicle.fuel,
-      insurance: vehicle.insurance,
-      driverAge: vehicle.driverAge,
-      status: vehicle.status,
-      note: vehicle.note || '',
-    });
-    setIsFormOpen(true);
-  };
+    const emptyForm = {
+      model: '',
+      number: '',
+      fuel: '가솔린',
+      insurance: '종합보험',
+      driverAge: '만 26세 이상',
+      status: '공장대기',
+      note: '',
+    };
 
-  const updateStatus = (id, nextStatus) => {
-    const stamp = nowStamp();
-    setVehicles((prev) => prev.map((vehicle) => vehicle.id === id ? { ...vehicle, status: nextStatus, updatedAt: stamp } : vehicle));
-    setSelectedVehicle((prev) => prev && prev.id === id ? { ...prev, status: nextStatus, updatedAt: stamp } : prev);
-  };
+    function nowStamp() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      return `${y}-${m}-${d} ${hh}:${mm}`;
+    }
 
-  const saveVehicle = () => {
-    if (!form.model.trim() || !form.number.trim()) return;
-    const stamp = nowStamp();
+    function App() {
+      const [vehicles, setVehicles] = React.useState(() => {
+        const saved = localStorage.getItem('loaner-vehicles');
+        return saved ? JSON.parse(saved) : initialVehicles;
+      });
+      const [selectedVehicle, setSelectedVehicle] = React.useState(null);
+      const [query, setQuery] = React.useState('');
+      const [statusFilter, setStatusFilter] = React.useState('전체');
+      const [isFormOpen, setIsFormOpen] = React.useState(false);
+      const [editingId, setEditingId] = React.useState(null);
+      const [form, setForm] = React.useState(emptyForm);
 
-    if (editingId) {
-      setVehicles((prev) => prev.map((vehicle) => vehicle.id === editingId ? { ...vehicle, ...form, updatedAt: stamp } : vehicle));
-      setSelectedVehicle((prev) => prev && prev.id === editingId ? { ...prev, ...form, updatedAt: stamp } : prev);
-    } else {
-      const newVehicle = {
-        id: Date.now(),
-        ...form,
-        updatedAt: stamp,
+      React.useEffect(() => {
+        localStorage.setItem('loaner-vehicles', JSON.stringify(vehicles));
+      }, [vehicles]);
+
+      const filteredVehicles = vehicles.filter((vehicle) => {
+        const q = query.toLowerCase();
+        const matchQuery =
+          vehicle.model.toLowerCase().includes(q) ||
+          vehicle.number.toLowerCase().includes(q);
+        const matchStatus = statusFilter === '전체' ? true : vehicle.status === statusFilter;
+        return matchQuery && matchStatus;
+      });
+
+      const stats = {
+        total: vehicles.length,
+        ready: vehicles.filter(v => v.status === '공장대기').length,
+        out: vehicles.filter(v => v.status === '대차출고').length,
+        checking: vehicles.filter(v => v.status === '점검중' || v.status === '세차중').length,
       };
-      setVehicles((prev) => [newVehicle, ...prev]);
-    }
 
-    setIsFormOpen(false);
-    setEditingId(null);
-    setForm(emptyForm);
-  };
+      function openNewForm() {
+        setEditingId(null);
+        setForm(emptyForm);
+        setIsFormOpen(true);
+      }
 
-  const deleteVehicle = (id) => {
-    setVehicles((prev) => prev.filter((vehicle) => vehicle.id !== id));
-    if (selectedVehicle?.id === id) setSelectedVehicle(null);
-    setIsFormOpen(false);
-  };
+      function openEditForm(vehicle) {
+        setEditingId(vehicle.id);
+        setForm({
+          model: vehicle.model,
+          number: vehicle.number,
+          fuel: vehicle.fuel,
+          insurance: vehicle.insurance,
+          driverAge: vehicle.driverAge,
+          status: vehicle.status,
+          note: vehicle.note || '',
+        });
+        setIsFormOpen(true);
+      }
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="relative overflow-hidden rounded-[2rem] border bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-xl">
-          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-10 left-10 h-28 w-28 rounded-full bg-blue-400/20 blur-2xl" />
-          <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm">
-                <Car className="h-4 w-4" />
-                사고대차 차량 관리앱
+      function updateStatus(id, nextStatus) {
+        const stamp = nowStamp();
+        setVehicles(prev =>
+          prev.map(v => v.id === id ? { ...v, status: nextStatus, updatedAt: stamp } : v)
+        );
+        setSelectedVehicle(prev =>
+          prev && prev.id === id ? { ...prev, status: nextStatus, updatedAt: stamp } : prev
+        );
+      }
+
+      function saveVehicle() {
+        if (!form.model.trim() || !form.number.trim()) {
+          alert('차종이랑 차량번호는 입력해야 돼.');
+          return;
+        }
+
+        const stamp = nowStamp();
+
+        if (editingId) {
+          setVehicles(prev =>
+            prev.map(v => v.id === editingId ? { ...v, ...form, updatedAt: stamp } : v)
+          );
+          setSelectedVehicle(prev =>
+            prev && prev.id === editingId ? { ...prev, ...form, updatedAt: stamp } : prev
+          );
+        } else {
+          const newVehicle = {
+            id: Date.now(),
+            ...form,
+            updatedAt: stamp,
+          };
+          setVehicles(prev => [newVehicle, ...prev]);
+        }
+
+        setIsFormOpen(false);
+        setEditingId(null);
+        setForm(emptyForm);
+      }
+
+      function deleteVehicle(id) {
+        if (!confirm('이 차량 삭제할까?')) return;
+        setVehicles(prev => prev.filter(v => v.id !== id));
+        if (selectedVehicle && selectedVehicle.id === id) setSelectedVehicle(null);
+        setIsFormOpen(false);
+      }
+
+      return (
+        <div className="wrap">
+          <div className="hero">
+            <div className="hero-top">
+              <div>
+                <div className="hero-badge">🚗 사고대차 차량 관리앱</div>
+                <h1 className="title">대차현황</h1>
               </div>
-              <h1 className="text-2xl font-bold md:text-3xl">대차현황</h1>
-              
+              <button className="add-btn" onClick={openNewForm}>+ 차량 추가</button>
             </div>
-            <Button onClick={openNewForm} className="rounded-2xl bg-white text-slate-900 hover:bg-slate-100">
-              <Plus className="mr-2 h-4 w-4" /> 차량 추가
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:min-w-[520px]">
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="text-xs text-slate-500">전체 차량</div><div className="mt-2 text-2xl font-bold">{stats.total}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-xs text-slate-500"><CheckCircle2 className="h-4 w-4" />공장대기</div><div className="mt-2 text-2xl font-bold">{stats.ready}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-xs text-slate-500"><ArrowRightLeft className="h-4 w-4" />대차출고</div><div className="mt-2 text-2xl font-bold">{stats.out}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-xs text-slate-500"><Clock3 className="h-4 w-4" />점검/세차</div><div className="mt-2 text-2xl font-bold">{stats.checking}</div></CardContent></Card>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="차종 또는 차량번호 검색" className="pl-9 bg-white" />
+          <div className="stats">
+            <div className="stat-card">
+              <div className="stat-label">전체 차량</div>
+              <div className="stat-value">{stats.total}</div>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40 bg-white"><SelectValue placeholder="상태 선택" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="전체">전체</SelectItem>
-                <SelectItem value="공장대기">공장대기</SelectItem>
-                <SelectItem value="대차출고">대차출고</SelectItem>
-                <SelectItem value="점검중">점검중</SelectItem>
-                <SelectItem value="세차중">세차중</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="stat-card">
+              <div className="stat-label">공장대기</div>
+              <div className="stat-value">{stats.ready}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">대차출고</div>
+              <div className="stat-value">{stats.out}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">점검/세차</div>
+              <div className="stat-value">{stats.checking}</div>
+            </div>
           </div>
-        </div>
 
-        <Card className="rounded-3xl shadow-sm">
-          <CardHeader className="pb-3"><CardTitle className="text-lg">차량 목록</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredVehicles.map((vehicle) => (
-                <div key={vehicle.id} className="rounded-2xl border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                  <button onClick={() => setSelectedVehicle(vehicle)} className="w-full text-left">
-                    <div className="flex items-start justify-between gap-3">
+          <div className="toolbar">
+            <input
+              className="search"
+              placeholder="차종 또는 차량번호 검색"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              className="select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option>전체</option>
+              <option>공장대기</option>
+              <option>대차출고</option>
+              <option>점검중</option>
+              <option>세차중</option>
+            </select>
+          </div>
+
+          <div className="panel">
+            <div className="panel-title">차량 목록</div>
+
+            {filteredVehicles.length === 0 ? (
+              <div className="empty">검색 결과가 없습니다.</div>
+            ) : (
+              <div className="grid">
+                {filteredVehicles.map(vehicle => (
+                  <div className="vehicle-card" key={vehicle.id}>
+                    <div className="vehicle-head">
                       <div>
-                        <div className="text-lg font-semibold">{vehicle.model}</div>
-                        <div className="text-sm text-slate-500">{vehicle.number}</div>
+                        <div className="vehicle-model">{vehicle.model}</div>
+                        <div className="vehicle-number">{vehicle.number}</div>
                       </div>
-                      <StatusBadge status={vehicle.status} />
+                      <div className={`badge ${vehicle.status}`}>{vehicle.status}</div>
                     </div>
-                    <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+
+                    <div className="vehicle-foot">
                       <span>{vehicle.fuel}</span>
                       <span>업데이트 {vehicle.updatedAt}</span>
                     </div>
-                  </button>
-                  <div className="mt-3 flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => setSelectedVehicle(vehicle)}>상세보기</Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-xl" onClick={() => openEditForm(vehicle)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+
+                    <div className="vehicle-actions">
+                      <button className="btn full" onClick={() => setSelectedVehicle(vehicle)}>상세보기</button>
+                      <button className="btn icon" onClick={() => openEditForm(vehicle)}>✎</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedVehicle && (
+            <div className="overlay" onClick={() => setSelectedVehicle(null)}>
+              <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-title-row">
+                  <div>
+                    <div className="modal-title">{selectedVehicle.model}</div>
+                    <div className="modal-sub">{selectedVehicle.number}</div>
+                  </div>
+                  <div className={`badge ${selectedVehicle.status}`}>{selectedVehicle.status}</div>
+                </div>
+
+                <div className="detail-grid">
+                  <div className="detail-card">
+                    <div className="detail-label">차종</div>
+                    <div className="detail-value">{selectedVehicle.model}</div>
+                  </div>
+                  <div className="detail-card">
+                    <div className="detail-label">차량번호</div>
+                    <div className="detail-value">{selectedVehicle.number}</div>
+                  </div>
+                  <div className="detail-card">
+                    <div className="detail-label">유종</div>
+                    <div className="detail-value">{selectedVehicle.fuel}</div>
+                  </div>
+                  <div className="detail-card">
+                    <div className="detail-label">보험</div>
+                    <div className="detail-value">{selectedVehicle.insurance}</div>
+                  </div>
+                  <div className="detail-card detail-wide">
+                    <div className="detail-label">운전자 연령</div>
+                    <div className="detail-value">{selectedVehicle.driverAge}</div>
+                  </div>
+                  <div className="detail-card detail-wide status-box">
+                    <div className="detail-label">최신 상태</div>
+                    <div className="detail-value">{selectedVehicle.status}</div>
+                    <div style={{marginTop:'8px', fontSize:'12px', color:'#6b7280'}}>최종 업데이트: {selectedVehicle.updatedAt}</div>
+                    {selectedVehicle.note ? (
+                      <div style={{marginTop:'8px', fontSize:'12px', color:'#4b5563'}}>메모: {selectedVehicle.note}</div>
+                    ) : null}
                   </div>
                 </div>
-              ))}
+
+                <div className="section-label">상태 변경</div>
+                <div className="status-grid">
+                  <button className="btn" onClick={() => updateStatus(selectedVehicle.id, '공장대기')}>공장대기</button>
+                  <button className="btn" onClick={() => updateStatus(selectedVehicle.id, '대차출고')}>대차출고</button>
+                  <button className="btn" onClick={() => updateStatus(selectedVehicle.id, '점검중')}>점검중</button>
+                  <button className="btn" onClick={() => updateStatus(selectedVehicle.id, '세차중')}>세차중</button>
+                </div>
+
+                <button className="btn full" onClick={() => openEditForm(selectedVehicle)}>이 차량 정보 수정</button>
+              </div>
             </div>
+          )}
 
-            {filteredVehicles.length === 0 && (
-              <div className="rounded-2xl border border-dashed bg-slate-50 p-10 text-center text-sm text-slate-500">검색 결과가 없습니다.</div>
-            )}
-          </CardContent>
-        </Card>
+          {isFormOpen && (
+            <div className="overlay" onClick={() => setIsFormOpen(false)}>
+              <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-title" style={{marginBottom:'16px'}}>
+                  {editingId ? '차량 정보 수정' : '차량 추가'}
+                </div>
 
-        <Dialog open={!!selectedVehicle} onOpenChange={(open) => !open && setSelectedVehicle(null)}>
-          <DialogContent className="sm:max-w-md rounded-3xl">
-            {selectedVehicle && (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="flex items-center justify-between gap-3 pr-8">
-                    <div>
-                      <div className="text-xl font-bold">{selectedVehicle.model}</div>
-                      <div className="mt-1 text-sm font-normal text-slate-500">{selectedVehicle.number}</div>
-                    </div>
-                    <StatusBadge status={selectedVehicle.status} />
-                  </DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-3 text-sm">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Card className="rounded-2xl shadow-none"><CardContent className="p-3"><div className="text-xs text-slate-500">차종</div><div className="mt-1 font-semibold">{selectedVehicle.model}</div></CardContent></Card>
-                    <Card className="rounded-2xl shadow-none"><CardContent className="p-3"><div className="text-xs text-slate-500">차량번호</div><div className="mt-1 font-semibold">{selectedVehicle.number}</div></CardContent></Card>
-                    <Card className="rounded-2xl shadow-none"><CardContent className="p-3"><div className="text-xs text-slate-500">유종</div><div className="mt-1 font-semibold">{selectedVehicle.fuel}</div></CardContent></Card>
-                    <Card className="rounded-2xl shadow-none"><CardContent className="p-3"><div className="text-xs text-slate-500">보험</div><div className="mt-1 font-semibold">{selectedVehicle.insurance}</div></CardContent></Card>
-                    <Card className="rounded-2xl shadow-none col-span-2"><CardContent className="p-3"><div className="text-xs text-slate-500">운전자 연령</div><div className="mt-1 font-semibold">{selectedVehicle.driverAge}</div></CardContent></Card>
+                <div className="form-grid">
+                  <div>
+                    <label className="label">차종</label>
+                    <input className="input" value={form.model} onChange={(e) => setForm({...form, model:e.target.value})} placeholder="예: K5" />
                   </div>
-
-                  <Card className="rounded-2xl shadow-none bg-slate-50">
-                    <CardContent className="p-3">
-                      <div className="text-xs text-slate-500">최신 상태</div>
-                      <div className="mt-1 font-semibold">{selectedVehicle.status}</div>
-                      <div className="mt-1 text-xs text-slate-500">최종 업데이트: {selectedVehicle.updatedAt}</div>
-                      {selectedVehicle.note && <div className="mt-2 text-xs text-slate-600">메모: {selectedVehicle.note}</div>}
-                    </CardContent>
-                  </Card>
 
                   <div>
-                    <div className="mb-2 text-xs text-slate-500">상태 변경</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" className="rounded-xl" onClick={() => updateStatus(selectedVehicle.id, '공장대기')}>공장대기</Button>
-                      <Button variant="outline" className="rounded-xl" onClick={() => updateStatus(selectedVehicle.id, '대차출고')}>대차출고</Button>
-                      <Button variant="outline" className="rounded-xl" onClick={() => updateStatus(selectedVehicle.id, '점검중')}>점검중</Button>
-                      <Button variant="outline" className="rounded-xl" onClick={() => updateStatus(selectedVehicle.id, '세차중')}>세차중</Button>
+                    <label className="label">차량번호</label>
+                    <input className="input" value={form.number} onChange={(e) => setForm({...form, number:e.target.value})} placeholder="예: 123하4567" />
+                  </div>
+
+                  <div className="form-row-2">
+                    <div>
+                      <label className="label">유종</label>
+                      <select className="select" value={form.fuel} onChange={(e) => setForm({...form, fuel:e.target.value})}>
+                        <option>가솔린</option>
+                        <option>디젤</option>
+                        <option>LPG</option>
+                        <option>하이브리드</option>
+                        <option>전기</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">보험</label>
+                      <input className="input" value={form.insurance} onChange={(e) => setForm({...form, insurance:e.target.value})} />
                     </div>
                   </div>
 
-                  <Button className="w-full rounded-xl" variant="outline" onClick={() => openEditForm(selectedVehicle)}>
-                    <Pencil className="mr-2 h-4 w-4" /> 이 차량 정보 수정
-                  </Button>
-                </div>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
+                  <div className="form-row-2">
+                    <div>
+                      <label className="label">운전자연령</label>
+                      <input className="input" value={form.driverAge} onChange={(e) => setForm({...form, driverAge:e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="label">상태</label>
+                      <select className="select" value={form.status} onChange={(e) => setForm({...form, status:e.target.value})}>
+                        <option>공장대기</option>
+                        <option>대차출고</option>
+                        <option>점검중</option>
+                        <option>세차중</option>
+                      </select>
+                    </div>
+                  </div>
 
-        <Dialog open={isFormOpen} onOpenChange={(open) => !open && setIsFormOpen(false)}>
-          <DialogContent className="sm:max-w-lg rounded-3xl">
-            <DialogHeader>
-              <DialogTitle>{editingId ? '차량 정보 수정' : '차량 추가'}</DialogTitle>
-            </DialogHeader>
+                  <div>
+                    <label className="label">메모</label>
+                    <textarea className="textarea" value={form.note} onChange={(e) => setForm({...form, note:e.target.value})} placeholder="간단 메모" />
+                  </div>
+                </div>
 
-            <div className="grid gap-4 py-2">
-              <div className="grid gap-2">
-                <Label>차종</Label>
-                <Input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="예: K5" />
-              </div>
-              <div className="grid gap-2">
-                <Label>차량번호</Label>
-                <Input value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} placeholder="예: 123하4567" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>유종</Label>
-                  <Select value={form.fuel} onValueChange={(value) => setForm({ ...form, fuel: value })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="가솔린">가솔린</SelectItem>
-                      <SelectItem value="디젤">디젤</SelectItem>
-                      <SelectItem value="LPG">LPG</SelectItem>
-                      <SelectItem value="하이브리드">하이브리드</SelectItem>
-                      <SelectItem value="전기">전기</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="modal-actions">
+                  <div>
+                    {editingId ? (
+                      <button className="btn danger" onClick={() => deleteVehicle(editingId)}>삭제</button>
+                    ) : null}
+                  </div>
+                  <div className="modal-right">
+                    <button className="btn" onClick={() => setIsFormOpen(false)}>취소</button>
+                    <button className="btn primary" onClick={saveVehicle}>저장</button>
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label>보험</Label>
-                  <Input value={form.insurance} onChange={(e) => setForm({ ...form, insurance: e.target.value })} placeholder="예: 종합보험" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>운전자연령</Label>
-                  <Input value={form.driverAge} onChange={(e) => setForm({ ...form, driverAge: e.target.value })} placeholder="예: 만 26세 이상" />
-                </div>
-                <div className="grid gap-2">
-                  <Label>상태</Label>
-                  <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="공장대기">공장대기</SelectItem>
-                      <SelectItem value="대차출고">대차출고</SelectItem>
-                      <SelectItem value="점검중">점검중</SelectItem>
-                      <SelectItem value="세차중">세차중</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label>메모</Label>
-                <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="간단 메모" />
               </div>
             </div>
+          )}
+        </div>
+      );
+    }
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-              <div>
-                {editingId && (
-                  <Button variant="outline" className="rounded-xl" onClick={() => deleteVehicle(editingId)}>
-                    <X className="mr-2 h-4 w-4" /> 삭제
-                  </Button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="rounded-xl" onClick={() => setIsFormOpen(false)}>취소</Button>
-                <Button className="rounded-xl" onClick={saveVehicle}>
-                  <Save className="mr-2 h-4 w-4" /> 저장
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
-}
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
