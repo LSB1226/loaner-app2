@@ -84,9 +84,10 @@
     .btn-primary { background: white; color: #0f172a; }
     .btn-outline { background: white; color: #0f172a; border: 1px solid #cbd5e1; }
     .btn-danger { background: #ef4444; color: white; }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
       margin-bottom: 18px;
     }
@@ -133,6 +134,7 @@
       box-shadow: 0 14px 28px rgba(30, 64, 175, 0.22);
     }
     .active-all small { color: rgba(255,255,255,0.88); }
+
     .active-ready {
       background: linear-gradient(135deg, #34d399, #10b981 55%, #059669);
       color: white;
@@ -140,13 +142,23 @@
       box-shadow: 0 14px 28px rgba(5, 150, 105, 0.22);
     }
     .active-ready small { color: rgba(255,255,255,0.9); }
+
     .active-out {
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9 55%, #2563eb);
+      background: linear-gradient(135deg, #ef4444, #dc2626 55%, #b91c1c);
       color: white;
       border-color: transparent;
-      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+      box-shadow: 0 14px 28px rgba(220, 38, 38, 0.25);
     }
-    .active-out small { color: rgba(255,255,255,0.9); }
+    .active-out small { color: rgba(255,255,255,0.95); }
+
+    .active-reserved {
+      background: linear-gradient(135deg, #f59e0b, #d97706 55%, #b45309);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 14px 28px rgba(217, 119, 6, 0.24);
+    }
+    .active-reserved small { color: rgba(255,255,255,0.95); }
+
     .toolbar {
       display: none;
       gap: 10px;
@@ -205,7 +217,9 @@
       white-space: nowrap;
     }
     .bg-ready { background: #d1fae5; color: #047857; }
-    .bg-out { background: #e0f2fe; color: #0369a1; }
+    .bg-out { background: #fee2e2; color: #b91c1c; }
+    .bg-reserved { background: #fef3c7; color: #b45309; }
+
     .vehicle-meta {
       display: flex;
       justify-content: space-between;
@@ -323,7 +337,7 @@
     <div class="hero">
       <div class="hero-top">
         <div>
-          <div class="chip">사고대차 차량 관리앱</div>
+          <div class="chip">중부1급모터스</div>
           <h1>대차현황</h1>
         </div>
         <button class="btn btn-primary" onclick="openForm()">차량 추가</button>
@@ -332,8 +346,9 @@
 
     <div class="grid">
       <button class="stat" id="tab-all" onclick="selectTab('전체')"><small>전체차량</small><strong id="count-all">0</strong></button>
-      <button class="stat" id="tab-ready" onclick="selectTab('공장대기')"><small>공장대기</small><strong id="count-ready">0</strong></button>
-      <button class="stat" id="tab-out" onclick="selectTab('대차출고')"><small>대차출고</small><strong id="count-out">0</strong></button>
+      <button class="stat" id="tab-ready" onclick="selectTab('대기차량')"><small>대기차량</small><strong id="count-ready">0</strong></button>
+      <button class="stat" id="tab-out" onclick="selectTab('출고차량')"><small>출고차량</small><strong id="count-out">0</strong></button>
+      <button class="stat" id="tab-reserved" onclick="selectTab('예약차량')"><small>예약차량</small><strong id="count-reserved">0</strong></button>
     </div>
 
     <div class="toolbar" id="toolbar">
@@ -368,7 +383,8 @@
         <div class="info-box"><div class="label">차량번호</div><div class="value" id="infoNumber"></div></div>
         <div class="info-box"><div class="label">유종</div><div class="value" id="infoFuel"></div></div>
         <div class="info-box"><div class="label">보험</div><div class="value" id="infoInsurance"></div></div>
-        <div class="info-box full"><div class="label">운전자 연령</div><div class="value" id="infoDriverAge"></div></div>
+        <div class="info-box"><div class="label">유류량</div><div class="value" id="infoFuelLevel"></div></div>
+        <div class="info-box"><div class="label">운전자 연령</div><div class="value" id="infoDriverAge"></div></div>
         <div class="info-box full"><div class="label">최신 상태</div><div class="value" id="infoStatus"></div></div>
         <div class="info-box full" id="infoNoteBox" style="display:none;"><div class="label">메모</div><div class="value" id="infoNote"></div></div>
       </div>
@@ -416,8 +432,9 @@
           <div class="form-group">
             <label>상태</label>
             <select id="formStatus">
-              <option>공장대기</option>
-              <option>대차출고</option>
+              <option>대기차량</option>
+              <option>출고차량</option>
+              <option>예약차량</option>
             </select>
           </div>
         </div>
@@ -495,7 +512,8 @@ function nowStamp() {
 }
 
 function badgeClass(status) {
-  if (status === "공장대기") return "badge bg-ready";
+  if (status === "대기차량") return "badge bg-ready";
+  if (status === "예약차량") return "badge bg-reserved";
   return "badge bg-out";
 }
 
@@ -511,21 +529,25 @@ function escapeHtml(value) {
 function renderStats() {
   const validVehicles = vehicles.filter(v => v.model && v.number);
   const total = validVehicles.length;
-  const ready = validVehicles.filter(v => v.status === "공장대기").length;
-  const out = validVehicles.filter(v => v.status === "대차출고").length;
+  const ready = validVehicles.filter(v => v.status === "대기차량").length;
+  const out = validVehicles.filter(v => v.status === "출고차량").length;
+  const reserved = validVehicles.filter(v => v.status === "예약차량").length;
 
   document.getElementById("count-all").textContent = total;
   document.getElementById("count-ready").textContent = ready;
   document.getElementById("count-out").textContent = out;
+  document.getElementById("count-reserved").textContent = reserved;
 }
 
 function paintActiveTab() {
   document.getElementById("tab-all").className =
     "stat" + (selectedTab === "전체" ? " active-all" : "");
   document.getElementById("tab-ready").className =
-    "stat" + (selectedTab === "공장대기" ? " active-ready" : "");
+    "stat" + (selectedTab === "대기차량" ? " active-ready" : "");
   document.getElementById("tab-out").className =
-    "stat" + (selectedTab === "대차출고" ? " active-out" : "");
+    "stat" + (selectedTab === "출고차량" ? " active-out" : "");
+  document.getElementById("tab-reserved").className =
+    "stat" + (selectedTab === "예약차량" ? " active-reserved" : "");
 }
 
 function renderVehicles() {
@@ -588,7 +610,7 @@ function selectTab(tab) {
   document.getElementById("toolbar").classList.add("show");
   document.getElementById("vehicleCard").classList.add("show");
   document.getElementById("toolbarTitle").textContent =
-    tab === "전체" ? "전체차량 목록" : `${tab} 차량 목록`;
+    tab === "전체" ? "전체차량 목록" : `${tab} 목록`;
 
   renderVehicles();
 }
@@ -608,6 +630,7 @@ function openDetail(id) {
   document.getElementById("infoNumber").textContent = vehicle.number || "";
   document.getElementById("infoFuel").textContent = vehicle.fuel || "";
   document.getElementById("infoInsurance").textContent = vehicle.insurance || "";
+  document.getElementById("infoFuelLevel").textContent = vehicle.fuelLevel || "";
   document.getElementById("infoDriverAge").textContent = vehicle.driverAge || "";
   document.getElementById("infoStatus").textContent = vehicle.status || "";
 
@@ -638,7 +661,7 @@ function openForm(id = null) {
   document.getElementById("formFuel").value = vehicle ? (vehicle.fuel || "가솔린") : "가솔린";
   document.getElementById("formInsurance").value = vehicle ? (vehicle.insurance || "종합보험") : "종합보험";
   document.getElementById("formDriverAge").value = vehicle ? (vehicle.driverAge || "만 26세 이상") : "만 26세 이상";
-  document.getElementById("formStatus").value = vehicle ? (vehicle.status || "공장대기") : "공장대기";
+  document.getElementById("formStatus").value = vehicle ? (vehicle.status || "대기차량") : "대기차량";
   document.getElementById("formFuelLevel").value = vehicle ? (vehicle.fuelLevel || "100%") : "100%";
   document.getElementById("formNote").value = vehicle ? (vehicle.note || "") : "";
 
@@ -735,7 +758,11 @@ onSnapshot(vehiclesRef, (snapshot) => {
       id: d.id,
       ...d.data()
     }))
-    .filter(v => v.status === "공장대기" || v.status === "대차출고")
+    .filter(v =>
+      v.status === "대기차량" ||
+      v.status === "출고차량" ||
+      v.status === "예약차량"
+    )
     .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
 
   renderStats();
@@ -752,6 +779,7 @@ onSnapshot(vehiclesRef, (snapshot) => {
       document.getElementById("infoNumber").textContent = current.number || "";
       document.getElementById("infoFuel").textContent = current.fuel || "";
       document.getElementById("infoInsurance").textContent = current.insurance || "";
+      document.getElementById("infoFuelLevel").textContent = current.fuelLevel || "";
       document.getElementById("infoDriverAge").textContent = current.driverAge || "";
       document.getElementById("infoStatus").textContent = current.status || "";
       if (current.note) {
@@ -769,6 +797,6 @@ onSnapshot(vehiclesRef, (snapshot) => {
 
 paintActiveTab();
 renderStats();
-</script>
+  </script>
 </body>
 </html>
