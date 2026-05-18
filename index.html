@@ -279,6 +279,45 @@
       box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
     }
 
+    .date-filter {
+      min-width: 170px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #d6dde8;
+      border-radius: 15px;
+      padding: 12px 14px;
+      font-size: 14px;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .home-filter {
+      display: block;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 16px;
+      margin: 0 0 16px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      border: 1px solid rgba(226,232,240,0.9);
+    }
+
+    .home-filter.hide { display: none; }
+
+    .home-filter-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      margin-bottom: 10px;
+    }
+
+    .home-filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .home-filter-row .date-filter { flex: 1; }
+
     .card {
       display: none;
       background: rgba(255,255,255,0.94);
@@ -359,12 +398,35 @@
     }
 
     .vehicle-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #64748b;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
       margin-top: 14px;
-      gap: 10px;
+    }
+
+    .vehicle-meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 8px;
+      min-height: 58px;
+    }
+
+    .vehicle-meta-label {
+      display: block;
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .vehicle-meta-value {
+      display: block;
+      font-size: 14px;
+      color: #0f172a;
+      font-weight: 900;
+      line-height: 1.25;
+      word-break: keep-all;
     }
 
     .vehicle-actions {
@@ -497,12 +559,32 @@
       flex-wrap: wrap;
     }
 
+    .tab-note {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+
+    .waiting-extra,
+    .normal-note {
+      display: none;
+    }
+
+    .waiting-extra.show,
+    .normal-note.show {
+      display: block;
+    }
+
     @media (max-width: 640px) {
       .grid { grid-template-columns: 1fr; }
       .info-grid, .form-two { grid-template-columns: 1fr; }
       .toolbar-right { width: 100%; }
       .btn { width: auto; }
       .vehicle-actions { flex-direction: row; }
+      .vehicle-meta { grid-template-columns: 1fr; }
       .hero-title { font-size: 27px; }
       .hero { padding: 22px 18px; }
     }
@@ -525,11 +607,20 @@
       </div>
     </div>
 
+    <div class="home-filter" id="homeFilter">
+      <div class="home-filter-title">출고예정일자 조회</div>
+      <div class="home-filter-row">
+        <input id="homeExpectedOutDateFilter" class="date-filter" type="date" oninput="renderVehicles()" onchange="renderVehicles()" />
+        <button class="btn btn-primary" onclick="renderVehicles()">조회</button>
+        <button class="btn btn-outline" onclick="clearHomeExpectedOutDateFilter()">초기화</button>
+      </div>
+    </div>
+
     <div class="grid">
       <button class="stat" id="tab-all" onclick="selectTab('전체')"><small>전체차량</small><strong id="count-all">0</strong></button>
       <button class="stat" id="tab-ready" onclick="selectTab('대기차량')"><small>대기차량</small><strong id="count-ready">0</strong></button>
       <button class="stat" id="tab-out" onclick="selectTab('출고차량')"><small>출고차량</small><strong id="count-out">0</strong></button>
-      <button class="stat" id="tab-reserved" onclick="selectTab('예약차량')"><small>예약차량</small><strong id="count-reserved">0</strong></button>
+      <button class="stat" id="tab-reserved" onclick="selectTab('예약차량')"><small>예약차량<span class="tab-note">(예약차량은 당일 출고건만 입력 바랍니다.)</span></small><strong id="count-reserved">0</strong></button>
     </div>
 
     <div class="toolbar" id="toolbar">
@@ -567,6 +658,10 @@
         <div class="info-box"><div class="label">유류량</div><div class="value" id="infoFuelLevel"></div></div>
         <div class="info-box"><div class="label">운전자 연령</div><div class="value" id="infoDriverAge"></div></div>
         <div class="info-box full"><div class="label">최신 상태</div><div class="value" id="infoStatus"></div></div>
+        <div class="info-box" id="infoAccidentVehicleBox" style="display:none;"><div class="label">사고차량</div><div class="value" id="infoAccidentVehicle"></div></div>
+        <div class="info-box" id="infoReceivedDateBox" style="display:none;"><div class="label">입고일자</div><div class="value" id="infoReceivedDate"></div></div>
+        <div class="info-box" id="infoExpectedOutDateBox" style="display:none;"><div class="label">출고예정일자</div><div class="value" id="infoExpectedOutDate"></div></div>
+        <div class="info-box full" id="infoSpecialNoteBox" style="display:none;"><div class="label">특이사항</div><div class="value" id="infoSpecialNote"></div></div>
         <div class="info-box full" id="infoNoteBox" style="display:none;"><div class="label">메모</div><div class="value" id="infoNote"></div></div>
       </div>
 
@@ -612,7 +707,7 @@
           </div>
           <div class="form-group">
             <label>상태</label>
-            <select id="formStatus">
+            <select id="formStatus" onchange="toggleWaitingFields()">
               <option>대기차량</option>
               <option>출고차량</option>
               <option>예약차량</option>
@@ -634,9 +729,27 @@
             <option>100%</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group normal-note" id="normalNoteGroup">
           <label>메모</label>
           <input id="formNote" placeholder="간단 메모" />
+        </div>
+        <div class="form-group waiting-extra" id="accidentVehicleGroup">
+          <label>사고차량</label>
+          <input id="formAccidentVehicle" placeholder="예: 아반떼 123가4567" />
+        </div>
+        <div class="form-two waiting-extra" id="waitingDateGroup">
+          <div class="form-group">
+            <label>입고일자</label>
+            <input id="formReceivedDate" type="date" />
+          </div>
+          <div class="form-group">
+            <label>출고예정일자</label>
+            <input id="formExpectedOutDate" type="date" />
+          </div>
+        </div>
+        <div class="form-group waiting-extra" id="specialNoteGroup">
+          <label>특이사항</label>
+          <input id="formSpecialNote" placeholder="특이사항" />
         </div>
       </div>
 
@@ -681,6 +794,7 @@ let vehicles = [];
 let selectedTab = null;
 let selectedVehicleId = null;
 let editingId = null;
+let originalStatus = null;
 
 function nowStamp() {
   const now = new Date();
@@ -705,6 +819,56 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function setInfoBox(boxId, valueId, value) {
+  const box = document.getElementById(boxId);
+  const target = document.getElementById(valueId);
+
+  if (value) {
+    box.style.display = "block";
+    target.textContent = value;
+  } else {
+    box.style.display = "none";
+    target.textContent = "";
+  }
+}
+
+function fillDetail(vehicle) {
+  document.getElementById("detailModel").textContent = vehicle.model || "";
+  document.getElementById("detailNumber").textContent = vehicle.number || "";
+  document.getElementById("detailBadge").innerHTML =
+    `<div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>`;
+
+  document.getElementById("infoModel").textContent = vehicle.model || "";
+  document.getElementById("infoNumber").textContent = vehicle.number || "";
+  document.getElementById("infoFuel").textContent = vehicle.fuel || "";
+  document.getElementById("infoInsurance").textContent = vehicle.insurance || "";
+  document.getElementById("infoFuelLevel").textContent = vehicle.fuelLevel || "";
+  document.getElementById("infoDriverAge").textContent = vehicle.driverAge || "";
+  document.getElementById("infoStatus").textContent = vehicle.status || "";
+
+  setInfoBox("infoAccidentVehicleBox", "infoAccidentVehicle", vehicle.accidentVehicle || "");
+  setInfoBox("infoReceivedDateBox", "infoReceivedDate", vehicle.receivedDate || "");
+  setInfoBox("infoExpectedOutDateBox", "infoExpectedOutDate", vehicle.expectedOutDate || "");
+  setInfoBox("infoSpecialNoteBox", "infoSpecialNote", vehicle.specialNote || "");
+  setInfoBox("infoNoteBox", "infoNote", vehicle.note || "");
+}
+
+function needsExtraInfo(oldStatus, newStatus) {
+  return (newStatus === "출고차량" && oldStatus !== "출고차량") ||
+         (oldStatus === "예약차량" && newStatus === "대기차량");
+}
+
+function toggleWaitingFields() {
+  const status = document.getElementById("formStatus").value;
+  const showExtra = needsExtraInfo(originalStatus, status);
+
+  document.querySelectorAll(".waiting-extra").forEach(el => {
+    el.classList.toggle("show", showExtra);
+  });
+
+  document.getElementById("normalNoteGroup").classList.toggle("show", !showExtra);
 }
 
 function renderStats() {
@@ -733,12 +897,25 @@ function paintActiveTab() {
 
 function renderVehicles() {
   const list = document.getElementById("vehicleList");
-  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const q = document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
+  const homeExpectedOutDateFilter = document.getElementById("homeExpectedOutDateFilter")?.value || "";
 
   let filtered = vehicles.filter(v => v.model && v.number);
 
-  if (selectedTab && selectedTab !== "전체") {
-    filtered = filtered.filter(v => v.status === selectedTab);
+  if (selectedTab) {
+    if (selectedTab !== "전체") {
+      filtered = filtered.filter(v => v.status === selectedTab);
+    }
+  } else {
+    if (!homeExpectedOutDateFilter) {
+      list.innerHTML = "";
+      document.getElementById("vehicleCard").classList.remove("show");
+      return;
+    }
+
+    filtered = filtered.filter(v => String(v.expectedOutDate || "").slice(0, 10) === homeExpectedOutDateFilter);
+    document.getElementById("vehicleCard").classList.add("show");
+    document.querySelector("#vehicleCard .card-title").textContent = `${homeExpectedOutDateFilter} 출고예정 차량`;
   }
 
   if (q) {
@@ -746,11 +923,6 @@ function renderVehicles() {
       (v.model || "").toLowerCase().includes(q) ||
       (v.number || "").toLowerCase().includes(q)
     );
-  }
-
-  if (!selectedTab) {
-    list.innerHTML = "";
-    return;
   }
 
   if (filtered.length === 0) {
@@ -768,8 +940,18 @@ function renderVehicles() {
         <div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>
       </div>
       <div class="vehicle-meta">
-        <span>${escapeHtml(vehicle.fuel || "")}</span>
-        <span>업데이트 ${escapeHtml(vehicle.updatedAt || "")}</span>
+        <div class="vehicle-meta-box">
+          <span class="vehicle-meta-label">입고일자</span>
+          <span class="vehicle-meta-value">${escapeHtml(vehicle.receivedDate || "-")}</span>
+        </div>
+        <div class="vehicle-meta-box">
+          <span class="vehicle-meta-label">출고예정일자</span>
+          <span class="vehicle-meta-value">${escapeHtml(vehicle.expectedOutDate || "-")}</span>
+        </div>
+        <div class="vehicle-meta-box">
+          <span class="vehicle-meta-label">사고차량</span>
+          <span class="vehicle-meta-value">${escapeHtml(vehicle.accidentVehicle || "-")}</span>
+        </div>
       </div>
       <div class="vehicle-actions">
         <button class="btn btn-outline" onclick="openDetail('${vehicle.id}')">상세보기</button>
@@ -788,8 +970,10 @@ function selectTab(tab) {
   selectedTab = tab;
   paintActiveTab();
 
+  document.getElementById("homeFilter").classList.add("hide");
   document.getElementById("toolbar").classList.add("show");
   document.getElementById("vehicleCard").classList.add("show");
+  document.querySelector("#vehicleCard .card-title").textContent = "차량 목록";
   document.getElementById("toolbarTitle").textContent =
     tab === "전체" ? "전체차량 목록" : `${tab} 목록`;
 
@@ -802,26 +986,7 @@ function openDetail(id) {
 
   selectedVehicleId = id;
 
-  document.getElementById("detailModel").textContent = vehicle.model || "";
-  document.getElementById("detailNumber").textContent = vehicle.number || "";
-  document.getElementById("detailBadge").innerHTML =
-    `<div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>`;
-
-  document.getElementById("infoModel").textContent = vehicle.model || "";
-  document.getElementById("infoNumber").textContent = vehicle.number || "";
-  document.getElementById("infoFuel").textContent = vehicle.fuel || "";
-  document.getElementById("infoInsurance").textContent = vehicle.insurance || "";
-  document.getElementById("infoFuelLevel").textContent = vehicle.fuelLevel || "";
-  document.getElementById("infoDriverAge").textContent = vehicle.driverAge || "";
-  document.getElementById("infoStatus").textContent = vehicle.status || "";
-
-  if (vehicle.note) {
-    document.getElementById("infoNoteBox").style.display = "block";
-    document.getElementById("infoNote").textContent = vehicle.note;
-  } else {
-    document.getElementById("infoNoteBox").style.display = "none";
-    document.getElementById("infoNote").textContent = "";
-  }
+  fillDetail(vehicle);
 
   document.getElementById("detailModal").classList.add("show");
 }
@@ -836,6 +1001,7 @@ function openForm(id = null) {
   document.getElementById("deleteBtn").style.display = id ? "inline-block" : "none";
 
   const vehicle = vehicles.find(v => v.id === id);
+  originalStatus = vehicle ? (vehicle.status || null) : null;
 
   document.getElementById("formModel").value = vehicle ? (vehicle.model || "") : "";
   document.getElementById("formNumber").value = vehicle ? (vehicle.number || "") : "";
@@ -845,6 +1011,11 @@ function openForm(id = null) {
   document.getElementById("formStatus").value = vehicle ? (vehicle.status || "대기차량") : "대기차량";
   document.getElementById("formFuelLevel").value = vehicle ? (vehicle.fuelLevel || "100%") : "100%";
   document.getElementById("formNote").value = vehicle ? (vehicle.note || "") : "";
+  document.getElementById("formAccidentVehicle").value = vehicle ? (vehicle.accidentVehicle || "") : "";
+  document.getElementById("formReceivedDate").value = vehicle ? (vehicle.receivedDate || "") : "";
+  document.getElementById("formExpectedOutDate").value = vehicle ? (vehicle.expectedOutDate || "") : "";
+  document.getElementById("formSpecialNote").value = vehicle ? (vehicle.specialNote || "") : "";
+  toggleWaitingFields();
 
   document.getElementById("formModal").classList.add("show");
   closeDetail();
@@ -852,6 +1023,7 @@ function openForm(id = null) {
 
 function closeForm() {
   document.getElementById("formModal").classList.remove("show");
+  originalStatus = null;
 }
 
 async function saveVehicle() {
@@ -863,11 +1035,32 @@ async function saveVehicle() {
   const status = document.getElementById("formStatus").value;
   const fuelLevel = document.getElementById("formFuelLevel").value;
   const note = document.getElementById("formNote").value.trim();
+  const accidentVehicle = document.getElementById("formAccidentVehicle").value.trim();
+  const receivedDate = document.getElementById("formReceivedDate").value;
+  const expectedOutDate = document.getElementById("formExpectedOutDate").value;
+  const specialNote = document.getElementById("formSpecialNote").value.trim();
   const updatedAt = nowStamp();
 
   if (!model || !number) {
     alert("차종이랑 차량번호는 입력해야 함");
     return;
+  }
+
+  const oldVehicle = editingId ? vehicles.find(v => v.id === editingId) : null;
+  const oldStatus = oldVehicle?.status || originalStatus;
+  const shouldRequireExtraInfo = needsExtraInfo(oldStatus, status);
+  const shouldClearExtraInfo = oldStatus === "출고차량" && status === "대기차량";
+
+  if (shouldRequireExtraInfo) {
+    const missing = [];
+    if (!accidentVehicle) missing.push("사고차량");
+    if (!receivedDate) missing.push("입고일자");
+    if (!expectedOutDate) missing.push("출고예정일자");
+
+    if (missing.length > 0) {
+      alert(`${missing.join(", ")} 입력이 안 됐습니다.`);
+      return;
+    }
   }
 
   const payload = {
@@ -878,7 +1071,11 @@ async function saveVehicle() {
     driverAge,
     status,
     fuelLevel,
-    note,
+    note: shouldRequireExtraInfo ? "" : note,
+    accidentVehicle: shouldRequireExtraInfo ? accidentVehicle : (shouldClearExtraInfo ? "" : (oldVehicle?.accidentVehicle || "")),
+    receivedDate: shouldRequireExtraInfo ? receivedDate : (shouldClearExtraInfo ? "" : (oldVehicle?.receivedDate || "")),
+    expectedOutDate: shouldRequireExtraInfo ? expectedOutDate : (shouldClearExtraInfo ? "" : (oldVehicle?.expectedOutDate || "")),
+    specialNote: shouldRequireExtraInfo ? specialNote : (shouldClearExtraInfo ? "" : (oldVehicle?.specialNote || "")),
     updatedAt
   };
 
@@ -915,8 +1112,17 @@ function goHome() {
   document.getElementById("searchInput").value = "";
   document.getElementById("toolbar").classList.remove("show");
   document.getElementById("vehicleCard").classList.remove("show");
+  document.getElementById("homeFilter").classList.remove("hide");
   document.getElementById("detailModal").classList.remove("show");
+  document.querySelector("#vehicleCard .card-title").textContent = "차량 목록";
   paintActiveTab();
+  renderVehicles();
+}
+
+function clearHomeExpectedOutDateFilter() {
+  document.getElementById("homeExpectedOutDateFilter").value = "";
+  document.querySelector("#vehicleCard .card-title").textContent = "차량 목록";
+  renderVehicles();
 }
 
 window.onclick = function (e) {
@@ -930,8 +1136,10 @@ window.closeDetail = closeDetail;
 window.openForm = openForm;
 window.closeForm = closeForm;
 window.saveVehicle = saveVehicle;
+window.toggleWaitingFields = toggleWaitingFields;
 window.deleteVehicle = deleteVehicle;
 window.goHome = goHome;
+window.clearHomeExpectedOutDateFilter = clearHomeExpectedOutDateFilter;
 
 onSnapshot(vehiclesRef, (snapshot) => {
   vehicles = snapshot.docs
@@ -952,24 +1160,7 @@ onSnapshot(vehiclesRef, (snapshot) => {
   if (selectedVehicleId) {
     const current = vehicles.find(v => v.id === selectedVehicleId);
     if (current) {
-      document.getElementById("detailModel").textContent = current.model || "";
-      document.getElementById("detailNumber").textContent = current.number || "";
-      document.getElementById("detailBadge").innerHTML =
-        `<div class="${badgeClass(current.status)}">${escapeHtml(current.status || "")}</div>`;
-      document.getElementById("infoModel").textContent = current.model || "";
-      document.getElementById("infoNumber").textContent = current.number || "";
-      document.getElementById("infoFuel").textContent = current.fuel || "";
-      document.getElementById("infoInsurance").textContent = current.insurance || "";
-      document.getElementById("infoFuelLevel").textContent = current.fuelLevel || "";
-      document.getElementById("infoDriverAge").textContent = current.driverAge || "";
-      document.getElementById("infoStatus").textContent = current.status || "";
-      if (current.note) {
-        document.getElementById("infoNoteBox").style.display = "block";
-        document.getElementById("infoNote").textContent = current.note;
-      } else {
-        document.getElementById("infoNoteBox").style.display = "none";
-        document.getElementById("infoNote").textContent = "";
-      }
+      fillDetail(current);
     } else {
       closeDetail();
     }
