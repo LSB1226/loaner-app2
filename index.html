@@ -381,6 +381,53 @@
       .add-area .btn-add { width: 100%; justify-content:center; padding: 11px 12px; font-size: 14px; border-radius: 13px; }
     }
 
+
+    /* 진짜 최종: 차량추가 우측 상단 소형 복구 + 브랜드/제목 자연스럽게 하향 + 글씨 두께 완화 */
+    .hero { min-height: 145px; padding: 8px 8px 0; }
+    .hero-top { display:block; margin-top: 46px; }
+    .add-area { position:absolute; top: 8px; right: 8px; margin:0; z-index:8; display:flex; justify-content:flex-end; }
+    .add-area .btn-add { width:auto; justify-content:center; padding: 10px 13px; font-size: 14px; border-radius: 13px; gap:6px; }
+    .add-area .btn-add svg { width:18px; height:18px; }
+    .brand { font-size: 16px; font-weight: 650; gap: 8px; margin:0; }
+    .brand-dot { width: 13px; height: 13px; border-width: 3px; }
+    .hero-title { margin: 6px 0 0; font-size: 43px; font-weight: 720; letter-spacing: -1.6px; }
+    .hero::before { top: 34px; right: -4px; width: 250px; height: 145px; opacity:.34; }
+    .hero-illust { top: 48px; right: -4px; width: 230px; height: 140px; opacity: .24; }
+
+    .btn { font-weight: 650; }
+    .home-filter-title,
+    .stat-label,
+    .toolbar-left-title,
+    .card-title,
+    .vehicle-model,
+    .badge,
+    .modal-title,
+    .form-group label { font-weight: 700; }
+    .stat-desc,
+    .vehicle-number,
+    .toolbar-left-sub,
+    .modal-sub,
+    .muted-empty { font-weight: 500; }
+    .stat-count strong { font-weight: 720; }
+    .unit,
+    .reserved-note,
+    .vehicle-meta-label,
+    .vehicle-meta-value,
+    .label,
+    .value { font-weight: 650; }
+
+    @media (max-width: 700px) {
+      .hero { min-height: 106px; padding: 4px 2px 0; }
+      .add-area { top: 2px; right: 2px; }
+      .add-area .btn-add { width:auto; padding: 8px 10px; font-size: 12px; border-radius: 11px; gap:5px; }
+      .hero-top { margin-top: 31px; }
+      .brand { font-size: 13px; font-weight: 600; gap: 7px; }
+      .brand-dot { width: 11px; height: 11px; border-width: 3px; }
+      .hero-title { font-size: 31px; margin: 5px 0 0; font-weight: 700; letter-spacing: -1.3px; }
+      .hero::before { width: 128px; height: 78px; right: -40px; top: 28px; opacity: .20; }
+      .hero-illust { width: 120px; height: 76px; right: -30px; top: 34px; opacity: .12; }
+    }
+
   </style>
 </head>
 <body>
@@ -400,14 +447,14 @@
         <defs><linearGradient id="g1" x1="38" y1="64" x2="278" y2="183" gradientUnits="userSpaceOnUse"><stop stop-color="#eff6ff"/><stop offset="1" stop-color="#60a5fa" stop-opacity=".45"/></linearGradient></defs>
       </svg>
 
+      <div class="add-area">
+        <button class="btn btn-primary btn-add" onclick="openForm()">🚘 차량 추가</button>
+      </div>
+
       <div class="hero-top">
         <div class="brand"><span class="brand-dot"></span><span>중부1급모터스</span></div>
       </div>
       <h1 class="hero-title">대차 현황</h1>
-    </div>
-
-    <div class="add-area">
-      <button class="btn btn-primary btn-add" onclick="openForm()">🚘 차량 추가</button>
     </div>
 
     <div class="home-filter" id="homeFilter">
