@@ -335,6 +335,27 @@
       .modal-box { border-radius: 22px; padding: 16px; max-height: 92vh; }
     }
 
+
+    /* 최종수정: 메인 상단 구간 위치/크기 재조정 */
+    .hero { min-height: 205px; padding: 8px 8px 0; }
+    .hero-top { align-items: center; }
+    .brand { margin-top: 0; font-size: 18px; }
+    .hero-title { margin: 34px 0 0; font-size: 48px; }
+    .btn-add { padding: 16px 24px; font-size: 17px; }
+    .hero::before { top: 42px; right: 0; width: 300px; height: 180px; }
+    .hero-illust { top: 58px; right: 8px; width: 275px; height: 170px; opacity: .46; }
+
+    @media (max-width: 700px) {
+      .hero { min-height: 92px; padding: 2px 0 0; }
+      .hero-top { align-items: center; }
+      .brand { font-size: 13px; gap: 7px; }
+      .brand-dot { width: 12px; height: 12px; border-width: 3px; }
+      .hero-title { font-size: 30px; margin: 17px 0 0; letter-spacing: -1.4px; }
+      .btn-add { padding: 10px 12px; font-size: 13px; border-radius: 12px; }
+      .hero::before { width: 142px; height: 86px; right: -44px; top: 28px; opacity: .28; }
+      .hero-illust { width: 132px; height: 84px; right: -30px; top: 32px; opacity: .18; }
+    }
+
   </style>
 </head>
 <body>
@@ -404,10 +425,10 @@
     <div class="toolbar" id="toolbar">
       <div>
         <div class="toolbar-left-title" id="toolbarTitle">차량 목록</div>
-        <div class="toolbar-left-sub">대차/사고차량 차종·차량번호로 바로 검색됩니다.</div>
+        <div class="toolbar-left-sub">차종 및 차량번호를 입력하면 바로 검색됩니다.</div>
       </div>
       <div class="toolbar-right">
-        <input id="searchInput" class="search" type="text" placeholder="대차/사고차량 차종 또는 차량번호 검색" oninput="renderVehicles()" />
+        <input id="searchInput" class="search" type="text" placeholder="차종 및 차량번호 입력" oninput="renderVehicles()" />
         <button class="btn btn-outline" onclick="goHome()">처음화면</button>
       </div>
     </div>
@@ -624,13 +645,27 @@ function runHomeExpectedOutDateSearch() {
   renderVehicles();
 }
 
+function normalizeSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[\s\-_.]/g, "");
+}
+
 function vehicleMatchesQuery(v, q) {
+  const rawQ = String(q || "").trim().toLowerCase();
+  const compactQ = normalizeSearchText(rawQ);
   const values = [
     v.model, v.number,
     accidentModelOf(v), accidentNumberOf(v), accidentTextOf(v),
+    v.accidentVehicle, v.accidentVehicleModel, v.accidentVehicleNumber,
     v.specialNote, v.unavailableReason, v.fuel, v.insurance, v.driverAge
-  ].map(x => String(x || "").toLowerCase());
-  return values.some(x => x.includes(q));
+  ];
+
+  return values.some(value => {
+    const raw = String(value || "").toLowerCase();
+    const compact = normalizeSearchText(value);
+    return raw.includes(rawQ) || (compactQ && compact.includes(compactQ));
+  });
 }
 
 function renderVehicles() {
@@ -670,6 +705,10 @@ function renderVehicles() {
       <div class="vehicle-meta">
         ${unavailable ? `
           <div class="vehicle-meta-box full"><span class="vehicle-meta-label">출고불가사유</span><span class="vehicle-meta-value">${escapeHtml(vehicle.unavailableReason || "-")}</span></div>
+        ` : vehicle.status === "대기차량" ? `
+          <div class="vehicle-meta-box"><span class="vehicle-meta-label">유종</span><span class="vehicle-meta-value">${escapeHtml(vehicle.fuel || "-")}</span></div>
+          <div class="vehicle-meta-box"><span class="vehicle-meta-label">보험</span><span class="vehicle-meta-value">${escapeHtml(vehicle.insurance || "-")}</span></div>
+          <div class="vehicle-meta-box full"><span class="vehicle-meta-label">운전자연령</span><span class="vehicle-meta-value">${escapeHtml(vehicle.driverAge || "-")}</span></div>
         ` : `
           <div class="vehicle-meta-box full"><span class="vehicle-meta-label">사고차량</span><span class="vehicle-meta-value">${escapeHtml(accidentTextOf(vehicle) || "-")}</span></div>
           <div class="vehicle-meta-box"><span class="vehicle-meta-label">입고일자</span><span class="vehicle-meta-value">${escapeHtml(vehicle.receivedDate || "-")}</span></div>
@@ -694,6 +733,8 @@ function selectTab(tab) {
   document.getElementById("vehicleCard").classList.add("show");
   document.querySelector("#vehicleCard .card-title").textContent = "차량 목록";
   document.getElementById("toolbarTitle").textContent = tab === "전체" ? "전체차량 목록" : `${tab} 목록`;
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.value = "";
   renderVehicles();
 }
 
