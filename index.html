@@ -7,282 +7,312 @@
   <style>
     * { box-sizing: border-box; }
 
+    :root {
+      --navy: #14203a;
+      --blue: #1d4ed8;
+      --soft-blue: #eef4ff;
+      --green: #13b86a;
+      --orange: #f59e0b;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+      --text: #101828;
+      --muted: #667085;
+      --line: #e5eaf3;
+      --card: rgba(255,255,255,0.92);
+    }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(30, 41, 59, 0.06) 0%, transparent 24%),
-        radial-gradient(circle at top right, rgba(59, 130, 246, 0.05) 0%, transparent 20%),
-        linear-gradient(180deg, #f3f6fa 0%, #eef2f7 48%, #f8fafc 100%);
-      color: #0f172a;
+        radial-gradient(circle at 80% 8%, rgba(29,78,216,0.16) 0%, transparent 24%),
+        radial-gradient(circle at 8% 0%, rgba(59,130,246,0.08) 0%, transparent 26%),
+        linear-gradient(180deg, #f7faff 0%, #f3f6fb 46%, #f8fafc 100%);
+      color: var(--text);
     }
 
-    .wrap { max-width: 960px; margin: 0 auto; padding: 18px; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 20px 18px 34px; }
 
     .hero {
-      background: linear-gradient(135deg, #0b1220 0%, #162033 45%, #1f3453 100%);
-      color: white;
-      border-radius: 28px;
-      padding: 28px 24px;
-      margin-bottom: 22px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
       position: relative;
+      min-height: 270px;
+      padding: 10px 8px 0;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; position: relative; z-index: 1; }
-    .hero-brand-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: 58px;
+      width: 340px;
+      height: 210px;
+      background:
+        radial-gradient(circle at 44% 54%, rgba(37,99,235,0.38), transparent 38%),
+        linear-gradient(135deg, rgba(96,165,250,0.10), rgba(37,99,235,0.03));
+      filter: blur(1px);
+      border-radius: 40px;
+      opacity: .9;
+      pointer-events: none;
+    }
 
-    .hero-brand {
+    .hero-illust {
+      position: absolute;
+      right: 10px;
+      top: 74px;
+      width: 310px;
+      height: 190px;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      width: fit-content;
-      padding: 9px 16px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
-      font-size: 13px;
-      font-weight: 800;
+      gap: 12px;
+      color: #263858;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-top: 6px;
     }
 
-    .hero-brand-dot {
-      width: 8px;
-      height: 8px;
+    .brand-dot {
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
-      background: #60a5fa;
-      box-shadow: 0 0 12px rgba(96,165,250,0.85);
-      flex-shrink: 0;
+      background: #2563eb;
+      border: 5px solid #dbe8ff;
+      box-shadow: 0 8px 18px rgba(37,99,235,.28);
     }
 
-    .hero-title { margin: 0; font-size: 34px; font-weight: 900; letter-spacing: -0.8px; line-height: 1.1; }
-    .hero-title .accent { color: #dbeafe; font-weight: 900; }
+    .hero-title {
+      margin: 46px 0 16px;
+      font-size: 52px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -2px;
+      color: #14203a;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-sub {
+      margin: 0;
+      color: #667493;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      position: relative;
+      z-index: 2;
+    }
 
     .btn {
       border: none;
       border-radius: 16px;
-      padding: 12px 15px;
+      padding: 13px 18px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
-      transition: 0.18s ease;
+      font-size: 15px;
+      font-weight: 900;
+      transition: .16s ease;
+      white-space: nowrap;
     }
 
-    .btn-primary { background: rgba(255,255,255,0.96); color: #0f172a; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14); }
-    .btn-outline { background: white; color: #0f172a; border: 1px solid #d6dde8; }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: linear-gradient(135deg, #1e3a8a, #1d4ed8); color: white; box-shadow: 0 14px 28px rgba(29,78,216,.22); }
+    .btn-outline { background: white; color: #263858; border: 1px solid #d9e1ee; box-shadow: 0 8px 20px rgba(16,24,40,.04); }
     .btn-danger { background: #dc2626; color: white; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .stat {
-      border-radius: 24px;
-      padding: 18px;
-      border: 1px solid #e5eaf1;
-      cursor: pointer;
-      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
-      text-align: left;
-      font-weight: 700;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-      position: relative;
-      overflow: hidden;
-      transition: 0.18s ease;
-    }
-
-    .stat small {
-      display: block;
-      font-size: 12px;
-      color: #64748b;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
-      font-weight: 700;
-    }
-
-    .stat strong { font-size: 30px; position: relative; z-index: 1; letter-spacing: -0.5px; }
-
-    .reserved-title {
-      display: flex !important;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: nowrap;
-      white-space: nowrap;
-    }
-
-    .reserved-note {
-      font-size: 10px;
-      font-weight: 800;
-      color: #94a3b8;
-      letter-spacing: -0.2px;
-      white-space: nowrap;
-    }
-
-    .active-reserved .reserved-note { color: rgba(255,255,255,0.9); }
-
-    .active-all { background: linear-gradient(135deg, #1e293b, #0f172a 62%, #1d4ed8); color: white; border-color: transparent; }
-    .active-all small { color: rgba(255,255,255,0.82); }
-    .active-ready { background: linear-gradient(135deg, #059669, #10b981 58%, #34d399); color: white; border-color: transparent; }
-    .active-ready small { color: rgba(255,255,255,0.88); }
-    .active-out { background: linear-gradient(135deg, #b91c1c, #dc2626 58%, #ef4444); color: white; border-color: transparent; }
-    .active-out small { color: rgba(255,255,255,0.9); }
-    .active-reserved { background: linear-gradient(135deg, #b45309, #d97706 58%, #f59e0b); color: white; border-color: transparent; }
-    .active-reserved small { color: rgba(255,255,255,0.9); }
-
-    .toolbar { display: none; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin: 10px 0 14px; }
-    .toolbar.show { display: flex; }
-    .toolbar-left-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
-    .toolbar-left-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
-    .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
-
-    .search, .date-filter {
-      background: rgba(255,255,255,0.96);
-      border: 1px solid #d6dde8;
-      border-radius: 15px;
-      padding: 12px 14px;
-      font-size: 14px;
-    }
-
-    .search { flex: 1; min-width: 220px; }
-    .date-filter { min-width: 170px; }
+    .btn-add { padding: 18px 28px; border-radius: 17px; font-size: 19px; display:flex; align-items:center; gap:10px; }
 
     .home-filter {
-      display: block;
-      background: rgba(255,255,255,0.94);
-      border-radius: 24px;
-      padding: 16px;
-      margin: 0 0 16px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-      border: 1px solid rgba(226,232,240,0.9);
+      background: var(--card);
+      border-radius: 30px;
+      padding: 30px 36px;
+      margin: 4px 0 28px;
+      box-shadow: 0 18px 46px rgba(16,24,40,.08);
+      border: 1px solid rgba(255,255,255,.8);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 5;
     }
 
     .home-filter.hide { display: none; }
-    .home-filter-title { font-size: 17px; font-weight: 800; margin-bottom: 10px; }
-    .home-filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .home-filter-row .date-filter { flex: 1; }
+    .home-filter-title { display:flex; align-items:center; gap:12px; color:#111c34; font-size:24px; font-weight:950; margin-bottom:24px; letter-spacing:-0.7px; }
+    .home-filter-title svg { color:#1d4ed8; }
+    .home-filter-row { display: grid; grid-template-columns: 1fr auto auto; gap: 28px; align-items: center; }
 
-    .card {
-      display: none;
-      background: rgba(255,255,255,0.94);
-      border-radius: 26px;
-      padding: 16px;
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
-      border: 1px solid rgba(226,232,240,0.9);
+    .date-wrap { position:relative; }
+    .date-filter, .search, .form-group input, .form-group select {
+      width: 100%;
+      background: white;
+      border: 2px solid #e0e7f1;
+      border-radius: 15px;
+      padding: 15px 17px;
+      font-size: 16px;
+      color: #111827;
+      outline: none;
+    }
+    .date-filter:focus, .search:focus, .form-group input:focus, .form-group select:focus { border-color:#93b4ff; box-shadow:0 0 0 4px rgba(37,99,235,.08); }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+    .stat {
+      width: 100%;
+      min-height: 178px;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 30px;
+      padding: 28px 34px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 18px 42px rgba(16,24,40,.07);
+      display: grid;
+      grid-template-columns: 140px 1fr 24px;
+      align-items: center;
+      gap: 26px;
+      cursor: pointer;
+      text-align: left;
+      transition: .18s ease;
     }
 
+    .stat:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(16,24,40,.10); }
+    .stat-icon { width: 118px; height: 118px; border-radius: 50%; display:flex; align-items:center; justify-content:center; }
+    .stat-icon svg { width: 48px; height: 48px; }
+    .icon-all { background:#edf3ff; color:#2563eb; }
+    .icon-ready { background:#eafaf1; color:#14b86a; }
+    .icon-out { background:#fff4e5; color:#f59e0b; }
+    .icon-reserved { background:#f4eaff; color:#8b5cf6; }
+    .icon-unavailable { background:#fff0f0; color:#ef4444; }
+
+    .stat-label { font-size: 21px; font-weight: 950; color:#18243d; letter-spacing:-.7px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .stat-count { margin: 14px 0 12px; display:flex; align-items:center; gap:9px; }
+    .stat-count strong { font-size: 50px; line-height:1; color:#101828; letter-spacing:-1.6px; }
+    .unit { font-size:18px; font-weight:950; padding:7px 10px; border-radius:13px; }
+    .unit-blue { background:#dfeaff; color:#2457d6; }
+    .unit-green { background:#dcfce7; color:#119654; }
+    .unit-orange { background:#fff0d8; color:#e98400; }
+    .unit-purple { background:#eee2ff; color:#854ee8; }
+    .unit-red { background:#fee2e2; color:#dc2626; }
+    .stat-desc { color:#72809c; font-size:17px; font-weight:800; letter-spacing:-.5px; }
+    .reserved-note { font-size:15px; color:#3f4f70; font-weight:950; }
+    .chev { color:#667085; font-size:42px; font-weight:300; }
+
+    .active-all, .active-ready, .active-out, .active-reserved, .active-unavailable { outline: 3px solid rgba(37,99,235,.13); }
+
+    .toolbar { display: none; gap: 14px; align-items: flex-start; justify-content: space-between; margin: 4px 0 16px; }
+    .toolbar.show { display: flex; }
+    .toolbar-left-title { font-size: 25px; font-weight: 950; letter-spacing: -0.8px; color:#14203a; }
+    .toolbar-left-sub { font-size: 14px; color: #667493; margin-top: 6px; font-weight:700; }
+    .toolbar-right { display: flex; gap: 10px; flex-wrap: wrap; min-width: 360px; flex: 1; justify-content: flex-end; }
+    .search { max-width: 420px; }
+
+    .card { display: none; background: rgba(255,255,255,.92); border-radius: 28px; padding: 18px; box-shadow: 0 18px 42px rgba(16,24,40,.07); border:1px solid rgba(255,255,255,.9); }
     .card.show { display: block; }
-    .card-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+    .card-title { font-size: 22px; font-weight: 950; margin: 4px 0 16px; color:#14203a; }
 
-    .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-
-    .vehicle-item {
-      border: 1px solid #e7edf4;
-      border-radius: 20px;
-      padding: 15px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-    }
-
+    .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 14px; }
+    .vehicle-item { border: 1px solid #e8eef7; border-radius: 24px; padding: 17px; background: #fff; box-shadow: 0 10px 24px rgba(16,24,40,.05); }
     .vehicle-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
-    .vehicle-model { font-weight: 800; font-size: 18px; }
-    .vehicle-number { font-size: 13px; color: #64748b; margin-top: 3px; }
+    .vehicle-model { font-weight: 950; font-size: 20px; color:#14203a; }
+    .vehicle-number { font-size: 14px; color: #667493; margin-top: 4px; font-weight:800; }
 
-    .badge {
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-      border: 1px solid transparent;
-    }
-
+    .badge { padding: 7px 11px; border-radius: 999px; font-size: 12px; font-weight: 950; white-space: nowrap; border: 1px solid transparent; }
     .bg-ready { background: #dcfce7; color: #047857; border-color: #bbf7d0; }
-    .bg-out { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
-    .bg-reserved { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+    .bg-out { background: #fff0d8; color: #b45309; border-color: #fde68a; }
+    .bg-reserved { background: #eee2ff; color: #7c3aed; border-color: #ddd6fe; }
+    .bg-unavailable { background:#fee2e2; color:#dc2626; border-color:#fecaca; }
 
-    .vehicle-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
-    .vehicle-meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 10px 8px; min-height: 58px; }
-    .vehicle-meta-label { display: block; font-size: 11px; color: #64748b; font-weight: 800; margin-bottom: 5px; }
-    .vehicle-meta-value { display: block; font-size: 14px; color: #0f172a; font-weight: 900; line-height: 1.25; }
-
-    .vehicle-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .vehicle-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 15px; }
+    .vehicle-meta-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 10px 9px; min-height: 60px; }
+    .vehicle-meta-box.full { grid-column: 1 / -1; }
+    .vehicle-meta-label { display: block; font-size: 11px; color: #667493; font-weight: 950; margin-bottom: 5px; }
+    .vehicle-meta-value { display: block; font-size: 14px; color: #101828; font-weight: 950; line-height: 1.28; word-break: break-word; }
+    .vehicle-actions { display: flex; gap: 8px; margin-top: 13px; }
     .vehicle-actions .btn { flex: 1; }
 
-    .muted-empty {
-      text-align: center;
-      color: #64748b;
-      padding: 28px 10px;
-      border: 1px dashed #cbd5e1;
-      border-radius: 18px;
-      background: #f8fafc;
-    }
+    .muted-empty { grid-column: 1/-1; text-align: center; color: #667493; padding: 28px 10px; border: 1px dashed #cbd5e1; border-radius: 18px; background: #f8fafc; font-weight:800; }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 999;
-    }
-
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.52); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 999; }
     .modal.show { display: flex; }
-    .modal-box { width: 100%; max-width: 560px; max-height: 90vh; overflow: auto; background: white; border-radius: 26px; padding: 18px; }
-    .modal-head { display: flex; justify-content: space-between; align-items: start; gap: 10px; margin-bottom: 14px; }
-    .modal-title { font-size: 22px; font-weight: 800; }
-    .modal-sub { font-size: 14px; color: #64748b; margin-top: 4px; }
+    .modal-box { width: 100%; max-width: 590px; max-height: 90vh; overflow: auto; background: white; border-radius: 28px; padding: 20px; box-shadow:0 24px 70px rgba(0,0,0,.22); }
+    .modal-head { display: flex; justify-content: space-between; align-items: start; gap: 10px; margin-bottom: 16px; }
+    .modal-title { font-size: 24px; font-weight: 950; color:#14203a; letter-spacing:-.8px; }
+    .modal-sub { font-size: 14px; color: #667493; margin-top: 4px; font-weight:800; }
 
     .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
     .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; }
     .info-box.full { grid-column: 1 / -1; }
-    .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
-    .value { font-size: 15px; font-weight: 700; }
+    .label { font-size: 12px; color: #667493; margin-bottom: 6px; font-weight:900; }
+    .value { font-size: 15px; font-weight: 900; color:#101828; word-break:break-word; }
 
     .form-grid { display: grid; gap: 12px; }
     .form-two { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-    .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 14px; font-size: 14px; background: white; }
-
+    .form-group label { display: block; font-size: 13px; font-weight: 950; margin-bottom: 7px; color:#263858; }
     .form-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .form-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
+    .schedule-extra, .unavailable-extra { display: none; }
+    .schedule-extra.show, .unavailable-extra.show { display: block; }
+    .form-two.schedule-extra.show { display:grid; }
 
-    .waiting-extra, .normal-note { display: none; }
-    .waiting-extra.show, .normal-note.show { display: block; }
-
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: 1fr; }
+    @media (max-width: 700px) {
+      .wrap { padding: 16px 12px 28px; }
+      .hero { min-height: 245px; }
+      .hero-title { font-size: 45px; margin-top: 42px; }
+      .hero-sub { font-size: 17px; }
+      .hero-illust { width: 260px; right:-32px; opacity:.42; }
+      .btn-add { padding: 15px 19px; font-size: 16px; }
+      .home-filter { padding: 24px 18px; border-radius: 27px; }
+      .home-filter-row { grid-template-columns: 1fr; gap: 10px; }
+      .stat { grid-template-columns: 95px 1fr 18px; padding: 22px 20px; min-height: 148px; gap: 18px; }
+      .stat-icon { width: 88px; height: 88px; }
+      .stat-icon svg { width: 38px; height: 38px; }
+      .stat-count strong { font-size: 44px; }
+      .stat-label { font-size: 19px; }
+      .stat-desc { font-size: 14px; }
+      .toolbar { flex-direction: column; }
+      .toolbar-right { min-width: 0; width: 100%; justify-content: stretch; }
+      .search { max-width: none; }
       .info-grid, .form-two { grid-template-columns: 1fr; }
-      .toolbar-right { width: 100%; }
-      .vehicle-actions { flex-direction: row; }
       .vehicle-meta { grid-template-columns: 1fr; }
-      .hero-title { font-size: 27px; }
-      .hero { padding: 22px 18px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
+      <svg class="hero-illust" viewBox="0 0 360 230" fill="none" aria-hidden="true">
+        <path d="M52 142c8-43 43-72 94-72h37c41 0 74 27 84 66l8 31H39l13-25Z" fill="url(#g1)"/>
+        <path d="M92 118h62c12 0 22-10 22-22v-7h-44c-23 0-38 9-51 29Z" fill="#2563eb" opacity=".42"/>
+        <path d="M186 89h32c21 0 39 16 45 42h-57c-11 0-20-9-20-20V89Z" fill="#1d4ed8" opacity=".48"/>
+        <circle cx="96" cy="169" r="27" fill="#dbeafe"/><circle cx="96" cy="169" r="12" fill="#2563eb" opacity=".45"/>
+        <circle cx="242" cy="169" r="27" fill="#dbeafe"/><circle cx="242" cy="169" r="12" fill="#2563eb" opacity=".45"/>
+        <rect x="265" y="35" width="70" height="152" rx="18" fill="#eaf2ff"/>
+        <rect x="282" y="58" width="35" height="10" rx="5" fill="#bcd3ff"/>
+        <rect x="285" y="94" width="13" height="50" rx="5" fill="#2563eb" opacity=".5"/>
+        <rect x="306" y="112" width="13" height="32" rx="5" fill="#2563eb" opacity=".35"/>
+        <path d="M288 35c2-16 24-16 26 0" stroke="#cfe0ff" stroke-width="10" stroke-linecap="round"/>
+        <defs><linearGradient id="g1" x1="38" y1="64" x2="278" y2="183" gradientUnits="userSpaceOnUse"><stop stop-color="#eff6ff"/><stop offset="1" stop-color="#60a5fa" stop-opacity=".45"/></linearGradient></defs>
+      </svg>
+
       <div class="hero-top">
-        <div class="hero-brand-wrap">
-          <div class="hero-brand">
-            <span class="hero-brand-dot"></span>
-            <span class="hero-brand-text">중부1급모터스</span>
-          </div>
-          <h1 class="hero-title"><span class="accent">대차 현황</span></h1>
-        </div>
-        <button class="btn btn-primary" onclick="openForm()">차량 추가</button>
+        <div class="brand"><span class="brand-dot"></span><span>중부1급모터스</span></div>
+        <button class="btn btn-primary btn-add" onclick="openForm()">🚘 차량 추가</button>
       </div>
+      <h1 class="hero-title">대차 현황</h1>
     </div>
 
     <div class="home-filter" id="homeFilter">
-      <div class="home-filter-title">출고예정일자 조회</div>
+      <div class="home-filter-title">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        출고 예정일자 조회
+      </div>
       <div class="home-filter-row">
         <input id="homeExpectedOutDateFilter" class="date-filter" type="date" oninput="runHomeExpectedOutDateSearch()" onchange="runHomeExpectedOutDateSearch()" />
         <button class="btn btn-primary" onclick="runHomeExpectedOutDateSearch()">조회</button>
@@ -291,19 +321,40 @@
     </div>
 
     <div class="grid">
-      <button class="stat" id="tab-all" onclick="selectTab('전체')"><small>전체차량</small><strong id="count-all">0</strong></button>
-      <button class="stat" id="tab-ready" onclick="selectTab('대기차량')"><small>대기차량</small><strong id="count-ready">0</strong></button>
-      <button class="stat" id="tab-out" onclick="selectTab('출고차량')"><small>출고차량</small><strong id="count-out">0</strong></button>
-      <button class="stat" id="tab-reserved" onclick="selectTab('예약차량')"><small class="reserved-title"><span>예약차량</span><span class="reserved-note">당일출고만 입력</span></small><strong id="count-reserved">0</strong></button>
+      <button class="stat" id="tab-all" onclick="selectTab('전체')">
+        <div class="stat-icon icon-all"><svg viewBox="0 0 24 24" fill="none"><path d="M7 16h10M6 16l1.5-6.5A3 3 0 0 1 10.4 7h3.2a3 3 0 0 1 2.9 2.5L18 16M6 16v2M18 16v2M8 13h.01M16 13h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="stat-label">전체 차량</div><div class="stat-count"><strong id="count-all">0</strong><span class="unit unit-blue">대</span></div></div>
+        <div class="chev">›</div>
+      </button>
+      <button class="stat" id="tab-ready" onclick="selectTab('대기차량')">
+        <div class="stat-icon icon-ready"><svg viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="stat-label">대기 차량</div><div class="stat-count"><strong id="count-ready">0</strong><span class="unit unit-green">대</span></div></div>
+        <div class="chev">›</div>
+      </button>
+      <button class="stat" id="tab-out" onclick="selectTab('출고차량')">
+        <div class="stat-icon icon-out"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7V3Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 3v5h5M10 13h6M10 17h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        <div><div class="stat-label">출고 차량</div><div class="stat-count"><strong id="count-out">0</strong><span class="unit unit-orange">대</span></div></div>
+        <div class="chev">›</div>
+      </button>
+      <button class="stat" id="tab-reserved" onclick="selectTab('예약차량')">
+        <div class="stat-icon icon-reserved"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v4M17 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></div>
+        <div><div class="stat-label">예약 차량 <span class="reserved-note">당일 출고만 입력</span></div><div class="stat-count"><strong id="count-reserved">0</strong><span class="unit unit-purple">대</span></div></div>
+        <div class="chev">›</div>
+      </button>
+      <button class="stat" id="tab-unavailable" onclick="selectTab('출고불가차량')">
+        <div class="stat-icon icon-unavailable"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 4.3 2.8 17.2A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.7-2.8L13.7 4.3a2 2 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="stat-label">출고불가 차량</div><div class="stat-count"><strong id="count-unavailable">0</strong><span class="unit unit-red">대</span></div></div>
+        <div class="chev">›</div>
+      </button>
     </div>
 
     <div class="toolbar" id="toolbar">
       <div>
         <div class="toolbar-left-title" id="toolbarTitle">차량 목록</div>
-        <div class="toolbar-left-sub">차량을 눌러 상세정보를 확인할 수 있습니다.</div>
+        <div class="toolbar-left-sub">대차/사고차량 차종·차량번호로 바로 검색됩니다.</div>
       </div>
       <div class="toolbar-right">
-        <input id="searchInput" class="search" type="text" placeholder="차종 또는 차량번호 검색" oninput="renderVehicles()" />
+        <input id="searchInput" class="search" type="text" placeholder="대차/사고차량 차종 또는 차량번호 검색" oninput="renderVehicles()" />
         <button class="btn btn-outline" onclick="goHome()">처음화면</button>
       </div>
     </div>
@@ -317,89 +368,60 @@
   <div class="modal" id="detailModal">
     <div class="modal-box">
       <div class="modal-head">
-        <div>
-          <div class="modal-title" id="detailModel"></div>
-          <div class="modal-sub" id="detailNumber"></div>
-        </div>
+        <div><div class="modal-title" id="detailModel"></div><div class="modal-sub" id="detailNumber"></div></div>
         <div id="detailBadge"></div>
       </div>
-
       <div class="info-grid">
-        <div class="info-box"><div class="label">차종</div><div class="value" id="infoModel"></div></div>
-        <div class="info-box"><div class="label">차량번호</div><div class="value" id="infoNumber"></div></div>
+        <div class="info-box"><div class="label">대차 차종</div><div class="value" id="infoModel"></div></div>
+        <div class="info-box"><div class="label">대차 차량번호</div><div class="value" id="infoNumber"></div></div>
         <div class="info-box"><div class="label">유종</div><div class="value" id="infoFuel"></div></div>
         <div class="info-box"><div class="label">보험</div><div class="value" id="infoInsurance"></div></div>
         <div class="info-box"><div class="label">유류량</div><div class="value" id="infoFuelLevel"></div></div>
         <div class="info-box"><div class="label">운전자 연령</div><div class="value" id="infoDriverAge"></div></div>
         <div class="info-box full"><div class="label">최신 상태</div><div class="value" id="infoStatus"></div></div>
-        <div class="info-box" id="infoAccidentVehicleBox" style="display:none;"><div class="label">사고차량</div><div class="value" id="infoAccidentVehicle"></div></div>
+        <div class="info-box" id="infoAccidentModelBox" style="display:none;"><div class="label">사고차량 차종</div><div class="value" id="infoAccidentModel"></div></div>
+        <div class="info-box" id="infoAccidentNumberBox" style="display:none;"><div class="label">사고차량 차량번호</div><div class="value" id="infoAccidentNumber"></div></div>
         <div class="info-box" id="infoReceivedDateBox" style="display:none;"><div class="label">입고일자</div><div class="value" id="infoReceivedDate"></div></div>
         <div class="info-box" id="infoExpectedOutDateBox" style="display:none;"><div class="label">출고예정일자</div><div class="value" id="infoExpectedOutDate"></div></div>
         <div class="info-box full" id="infoSpecialNoteBox" style="display:none;"><div class="label">특이사항</div><div class="value" id="infoSpecialNote"></div></div>
-        <div class="info-box full" id="infoNoteBox" style="display:none;"><div class="label">메모</div><div class="value" id="infoNote"></div></div>
+        <div class="info-box full" id="infoUnavailableReasonBox" style="display:none;"><div class="label">출고불가사유</div><div class="value" id="infoUnavailableReason"></div></div>
       </div>
-
       <button class="btn btn-primary" style="width:100%;" onclick="closeDetail()">닫기</button>
     </div>
   </div>
 
   <div class="modal" id="formModal">
     <div class="modal-box">
-      <div class="modal-head">
-        <div class="modal-title" id="formTitle">차량 추가</div>
-      </div>
-
+      <div class="modal-head"><div class="modal-title" id="formTitle">차량 추가</div></div>
       <div class="form-grid">
-        <div class="form-group"><label>차종</label><input id="formModel" placeholder="예: K5" /></div>
-        <div class="form-group"><label>차량번호</label><input id="formNumber" placeholder="예: 123하4567" /></div>
-
         <div class="form-two">
-          <div class="form-group">
-            <label>유종</label>
-            <select id="formFuel">
-              <option>가솔린</option><option>디젤</option><option>LPG</option><option>하이브리드</option><option>전기</option>
-            </select>
-          </div>
+          <div class="form-group"><label>대차 차종</label><input id="formModel" placeholder="예: K5" /></div>
+          <div class="form-group"><label>대차 차량번호</label><input id="formNumber" placeholder="예: 123하4567" /></div>
+        </div>
+        <div class="form-two">
+          <div class="form-group"><label>유종</label><select id="formFuel"><option>가솔린</option><option>디젤</option><option>LPG</option><option>하이브리드</option><option>전기</option></select></div>
           <div class="form-group"><label>보험</label><input id="formInsurance" /></div>
         </div>
-
         <div class="form-two">
           <div class="form-group"><label>운전자연령</label><input id="formDriverAge" /></div>
-          <div class="form-group">
-            <label>상태</label>
-            <select id="formStatus" onchange="toggleWaitingFields()">
-              <option>대기차량</option>
-              <option>출고차량</option>
-              <option>예약차량</option>
-            </select>
-          </div>
+          <div class="form-group"><label>상태</label><select id="formStatus" onchange="toggleFields()"><option>대기차량</option><option>출고차량</option><option>예약차량</option><option>출고불가차량</option></select></div>
         </div>
+        <div class="form-group"><label>유류량</label><select id="formFuelLevel"><option>10%</option><option>20%</option><option>30%</option><option>40%</option><option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option></select></div>
 
-        <div class="form-group">
-          <label>유류량</label>
-          <select id="formFuelLevel">
-            <option>10%</option><option>20%</option><option>30%</option><option>40%</option><option>50%</option>
-            <option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option>
-          </select>
+        <div class="form-two schedule-extra" id="accidentSplitGroup">
+          <div class="form-group"><label>사고차량 차종</label><input id="formAccidentModel" placeholder="예: 아반떼" /></div>
+          <div class="form-group"><label>사고차량 차량번호</label><input id="formAccidentNumber" placeholder="예: 123가4567" /></div>
         </div>
-
-        <div class="form-group normal-note" id="normalNoteGroup"><label>메모</label><input id="formNote" placeholder="간단 메모" /></div>
-        <div class="form-group waiting-extra" id="accidentVehicleGroup"><label>사고차량</label><input id="formAccidentVehicle" placeholder="예: 아반떼 123가4567" /></div>
-
-        <div class="form-two waiting-extra" id="waitingDateGroup">
+        <div class="form-two schedule-extra" id="waitingDateGroup">
           <div class="form-group"><label>입고일자</label><input id="formReceivedDate" type="date" /></div>
           <div class="form-group"><label>출고예정일자</label><input id="formExpectedOutDate" type="date" /></div>
         </div>
-
-        <div class="form-group waiting-extra" id="specialNoteGroup"><label>특이사항</label><input id="formSpecialNote" placeholder="특이사항" /></div>
+        <div class="form-group schedule-extra" id="specialNoteGroup"><label>특이사항</label><input id="formSpecialNote" placeholder="특이사항" /></div>
+        <div class="form-group unavailable-extra" id="unavailableReasonGroup"><label>출고불가사유</label><input id="formUnavailableReason" placeholder="" /></div>
       </div>
-
       <div class="form-actions">
         <div><button class="btn btn-danger" id="deleteBtn" style="display:none;" onclick="deleteVehicle()">삭제</button></div>
-        <div class="form-actions-right">
-          <button class="btn btn-outline" onclick="closeForm()">취소</button>
-          <button class="btn btn-primary" onclick="saveVehicle()">저장</button>
-        </div>
+        <div class="form-actions-right"><button class="btn btn-outline" onclick="closeForm()">취소</button><button class="btn btn-primary" onclick="saveVehicle()">저장</button></div>
       </div>
     </div>
   </div>
@@ -436,9 +458,16 @@ function nowStamp() {
   return `${y}-${m}-${d} ${hh}:${mm}`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+
 function badgeClass(status) {
   if (status === "대기차량") return "badge bg-ready";
   if (status === "예약차량") return "badge bg-reserved";
+  if (status === "출고불가차량") return "badge bg-unavailable";
   return "badge bg-out";
 }
 
@@ -446,33 +475,41 @@ function usesScheduleInfo(status) {
   return status === "출고차량" || status === "예약차량";
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+function isUnavailable(status) {
+  return status === "출고불가차량";
+}
+
+function normalizeDateValue(value) {
+  if (!value) return "";
+  return String(value).trim().slice(0, 10);
+}
+
+function accidentModelOf(v) {
+  return v.accidentModel || v.accidentVehicleModel || "";
+}
+
+function accidentNumberOf(v) {
+  return v.accidentNumber || v.accidentVehicleNumber || "";
+}
+
+function accidentTextOf(v) {
+  const model = accidentModelOf(v);
+  const number = accidentNumberOf(v);
+  const legacy = v.accidentVehicle || "";
+  return [model, number].filter(Boolean).join(" ") || legacy;
 }
 
 function setInfoBox(boxId, valueId, value) {
   const box = document.getElementById(boxId);
   const target = document.getElementById(valueId);
-
-  if (value) {
-    box.style.display = "block";
-    target.textContent = value;
-  } else {
-    box.style.display = "none";
-    target.textContent = "";
-  }
+  if (value) { box.style.display = "block"; target.textContent = value; }
+  else { box.style.display = "none"; target.textContent = ""; }
 }
 
 function fillDetail(vehicle) {
   document.getElementById("detailModel").textContent = vehicle.model || "";
   document.getElementById("detailNumber").textContent = vehicle.number || "";
   document.getElementById("detailBadge").innerHTML = `<div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>`;
-
   document.getElementById("infoModel").textContent = vehicle.model || "";
   document.getElementById("infoNumber").textContent = vehicle.number || "";
   document.getElementById("infoFuel").textContent = vehicle.fuel || "";
@@ -480,23 +517,20 @@ function fillDetail(vehicle) {
   document.getElementById("infoFuelLevel").textContent = vehicle.fuelLevel || "";
   document.getElementById("infoDriverAge").textContent = vehicle.driverAge || "";
   document.getElementById("infoStatus").textContent = vehicle.status || "";
-
-  setInfoBox("infoAccidentVehicleBox", "infoAccidentVehicle", vehicle.accidentVehicle || "");
+  setInfoBox("infoAccidentModelBox", "infoAccidentModel", accidentModelOf(vehicle));
+  setInfoBox("infoAccidentNumberBox", "infoAccidentNumber", accidentNumberOf(vehicle));
   setInfoBox("infoReceivedDateBox", "infoReceivedDate", vehicle.receivedDate || "");
   setInfoBox("infoExpectedOutDateBox", "infoExpectedOutDate", vehicle.expectedOutDate || "");
   setInfoBox("infoSpecialNoteBox", "infoSpecialNote", vehicle.specialNote || "");
-  setInfoBox("infoNoteBox", "infoNote", vehicle.note || "");
+  setInfoBox("infoUnavailableReasonBox", "infoUnavailableReason", vehicle.unavailableReason || "");
 }
 
-function toggleWaitingFields() {
+function toggleFields() {
   const status = document.getElementById("formStatus").value;
-  const showExtra = usesScheduleInfo(status);
-
-  document.querySelectorAll(".waiting-extra").forEach(el => {
-    el.classList.toggle("show", showExtra);
-  });
-
-  document.getElementById("normalNoteGroup").classList.toggle("show", !showExtra);
+  const showSchedule = usesScheduleInfo(status);
+  const showUnavailable = isUnavailable(status);
+  document.querySelectorAll(".schedule-extra").forEach(el => el.classList.toggle("show", showSchedule));
+  document.querySelectorAll(".unavailable-extra").forEach(el => el.classList.toggle("show", showUnavailable));
 }
 
 function renderStats() {
@@ -505,6 +539,7 @@ function renderStats() {
   document.getElementById("count-ready").textContent = validVehicles.filter(v => v.status === "대기차량").length;
   document.getElementById("count-out").textContent = validVehicles.filter(v => v.status === "출고차량").length;
   document.getElementById("count-reserved").textContent = validVehicles.filter(v => v.status === "예약차량").length;
+  document.getElementById("count-unavailable").textContent = validVehicles.filter(v => v.status === "출고불가차량").length;
 }
 
 function paintActiveTab() {
@@ -512,131 +547,107 @@ function paintActiveTab() {
   document.getElementById("tab-ready").className = "stat" + (selectedTab === "대기차량" ? " active-ready" : "");
   document.getElementById("tab-out").className = "stat" + (selectedTab === "출고차량" ? " active-out" : "");
   document.getElementById("tab-reserved").className = "stat" + (selectedTab === "예약차량" ? " active-reserved" : "");
-}
-
-function normalizeDateValue(value) {
-  if (!value) return "";
-  return String(value).trim().slice(0, 10);
+  document.getElementById("tab-unavailable").className = "stat" + (selectedTab === "출고불가차량" ? " active-unavailable" : "");
 }
 
 function runHomeExpectedOutDateSearch() {
   selectedTab = null;
   selectedVehicleId = null;
-
   const searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.value = "";
-
   document.getElementById("toolbar").classList.remove("show");
   document.getElementById("homeFilter").classList.remove("hide");
   paintActiveTab();
   renderVehicles();
 }
 
+function vehicleMatchesQuery(v, q) {
+  const values = [
+    v.model, v.number,
+    accidentModelOf(v), accidentNumberOf(v), accidentTextOf(v),
+    v.specialNote, v.unavailableReason, v.fuel, v.insurance, v.driverAge
+  ].map(x => String(x || "").toLowerCase());
+  return values.some(x => x.includes(q));
+}
+
 function renderVehicles() {
   const list = document.getElementById("vehicleList");
   const q = document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
   const homeExpectedOutDateFilter = normalizeDateValue(document.getElementById("homeExpectedOutDateFilter")?.value || "");
-
   let filtered = vehicles.filter(v => v.model && v.number);
 
   if (selectedTab) {
-    if (selectedTab !== "전체") {
-      filtered = filtered.filter(v => v.status === selectedTab);
-    }
+    if (selectedTab !== "전체") filtered = filtered.filter(v => v.status === selectedTab);
   } else {
     if (!homeExpectedOutDateFilter) {
       list.innerHTML = "";
       document.getElementById("vehicleCard").classList.remove("show");
       return;
     }
-
-    filtered = filtered.filter(v =>
-      normalizeDateValue(v.expectedOutDate || v.expectedOutDateText || v.expected_out_date || "") === homeExpectedOutDateFilter
-    );
-
+    filtered = filtered.filter(v => normalizeDateValue(v.expectedOutDate || v.expectedOutDateText || v.expected_out_date || "") === homeExpectedOutDateFilter);
     document.getElementById("vehicleCard").classList.add("show");
     document.querySelector("#vehicleCard .card-title").textContent = `${homeExpectedOutDateFilter} 출고예정 차량`;
   }
 
-  if (q) {
-    filtered = filtered.filter(v =>
-      (v.model || "").toLowerCase().includes(q) ||
-      (v.number || "").toLowerCase().includes(q)
-    );
-  }
+  if (q) filtered = filtered.filter(v => vehicleMatchesQuery(v, q));
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="muted-empty">검색 결과가 없습니다.</div>';
     return;
   }
 
-  list.innerHTML = filtered.map(vehicle => `
+  list.innerHTML = filtered.map(vehicle => {
+    const unavailable = vehicle.status === "출고불가차량";
+    return `
     <div class="vehicle-item">
       <div class="vehicle-top">
-        <div>
-          <div class="vehicle-model">${escapeHtml(vehicle.model || "")}</div>
-          <div class="vehicle-number">${escapeHtml(vehicle.number || "")}</div>
-        </div>
+        <div><div class="vehicle-model">${escapeHtml(vehicle.model || "")}</div><div class="vehicle-number">${escapeHtml(vehicle.number || "")}</div></div>
         <div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>
       </div>
       <div class="vehicle-meta">
-        <div class="vehicle-meta-box">
-          <span class="vehicle-meta-label">입고일자</span>
-          <span class="vehicle-meta-value">${escapeHtml(vehicle.receivedDate || "-")}</span>
-        </div>
-        <div class="vehicle-meta-box">
-          <span class="vehicle-meta-label">출고예정일자</span>
-          <span class="vehicle-meta-value">${escapeHtml(vehicle.expectedOutDate || "-")}</span>
-        </div>
-        <div class="vehicle-meta-box">
-          <span class="vehicle-meta-label">사고차량</span>
-          <span class="vehicle-meta-value">${escapeHtml(vehicle.accidentVehicle || "-")}</span>
-        </div>
+        ${unavailable ? `
+          <div class="vehicle-meta-box full"><span class="vehicle-meta-label">출고불가사유</span><span class="vehicle-meta-value">${escapeHtml(vehicle.unavailableReason || "-")}</span></div>
+        ` : `
+          <div class="vehicle-meta-box full"><span class="vehicle-meta-label">사고차량</span><span class="vehicle-meta-value">${escapeHtml(accidentTextOf(vehicle) || "-")}</span></div>
+          <div class="vehicle-meta-box"><span class="vehicle-meta-label">입고일자</span><span class="vehicle-meta-value">${escapeHtml(vehicle.receivedDate || "-")}</span></div>
+          <div class="vehicle-meta-box"><span class="vehicle-meta-label">출고예정일자</span><span class="vehicle-meta-value">${escapeHtml(vehicle.expectedOutDate || "-")}</span></div>
+          <div class="vehicle-meta-box full"><span class="vehicle-meta-label">특이사항</span><span class="vehicle-meta-value">${escapeHtml(vehicle.specialNote || "-")}</span></div>
+        `}
       </div>
       <div class="vehicle-actions">
         <button class="btn btn-outline" onclick="openDetail('${vehicle.id}')">상세보기</button>
         <button class="btn btn-outline" onclick="openForm('${vehicle.id}')">변경</button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
 
 function selectTab(tab) {
-  if (selectedTab === tab) {
-    goHome();
-    return;
-  }
-
+  if (selectedTab === tab) { goHome(); return; }
   selectedTab = tab;
   paintActiveTab();
-
   document.getElementById("homeFilter").classList.add("hide");
   document.getElementById("toolbar").classList.add("show");
   document.getElementById("vehicleCard").classList.add("show");
   document.querySelector("#vehicleCard .card-title").textContent = "차량 목록";
   document.getElementById("toolbarTitle").textContent = tab === "전체" ? "전체차량 목록" : `${tab} 목록`;
-
   renderVehicles();
 }
 
 function openDetail(id) {
   const vehicle = vehicles.find(v => v.id === id);
   if (!vehicle) return;
-
   selectedVehicleId = id;
   fillDetail(vehicle);
   document.getElementById("detailModal").classList.add("show");
 }
 
-function closeDetail() {
-  document.getElementById("detailModal").classList.remove("show");
-}
+function closeDetail() { document.getElementById("detailModal").classList.remove("show"); }
 
 function openForm(id = null) {
   editingId = id;
   document.getElementById("formTitle").textContent = id ? "차량 정보 변경" : "차량 추가";
   document.getElementById("deleteBtn").style.display = id ? "inline-block" : "none";
-
   const vehicle = vehicles.find(v => v.id === id);
 
   document.getElementById("formModel").value = vehicle ? (vehicle.model || "") : "";
@@ -646,21 +657,18 @@ function openForm(id = null) {
   document.getElementById("formDriverAge").value = vehicle ? (vehicle.driverAge || "만 26세 이상") : "만 26세 이상";
   document.getElementById("formStatus").value = vehicle ? (vehicle.status || "대기차량") : "대기차량";
   document.getElementById("formFuelLevel").value = vehicle ? (vehicle.fuelLevel || "100%") : "100%";
-  document.getElementById("formNote").value = vehicle ? (vehicle.note || "") : "";
-  document.getElementById("formAccidentVehicle").value = vehicle ? (vehicle.accidentVehicle || "") : "";
+  document.getElementById("formAccidentModel").value = vehicle ? accidentModelOf(vehicle) : "";
+  document.getElementById("formAccidentNumber").value = vehicle ? accidentNumberOf(vehicle) : "";
   document.getElementById("formReceivedDate").value = vehicle ? (vehicle.receivedDate || "") : "";
   document.getElementById("formExpectedOutDate").value = vehicle ? (vehicle.expectedOutDate || "") : "";
   document.getElementById("formSpecialNote").value = vehicle ? (vehicle.specialNote || "") : "";
-
-  toggleWaitingFields();
-
+  document.getElementById("formUnavailableReason").value = vehicle ? (vehicle.unavailableReason || "") : "";
+  toggleFields();
   document.getElementById("formModal").classList.add("show");
   closeDetail();
 }
 
-function closeForm() {
-  document.getElementById("formModal").classList.remove("show");
-}
+function closeForm() { document.getElementById("formModal").classList.remove("show"); }
 
 async function saveVehicle() {
   const model = document.getElementById("formModel").value.trim();
@@ -670,54 +678,48 @@ async function saveVehicle() {
   const driverAge = document.getElementById("formDriverAge").value.trim();
   const status = document.getElementById("formStatus").value;
   const fuelLevel = document.getElementById("formFuelLevel").value;
-  const note = document.getElementById("formNote").value.trim();
-  const accidentVehicle = document.getElementById("formAccidentVehicle").value.trim();
+  const accidentModel = document.getElementById("formAccidentModel").value.trim();
+  const accidentNumber = document.getElementById("formAccidentNumber").value.trim();
   const receivedDate = document.getElementById("formReceivedDate").value;
   const expectedOutDate = document.getElementById("formExpectedOutDate").value;
   const specialNote = document.getElementById("formSpecialNote").value.trim();
+  const unavailableReason = document.getElementById("formUnavailableReason").value.trim();
   const updatedAt = nowStamp();
 
-  if (!model || !number) {
-    alert("차종이랑 차량번호는 입력해야 함");
+  if (!model || !number) { alert("대차 차종이랑 대차 차량번호는 입력해야 함"); return; }
+
+  if (usesScheduleInfo(status)) {
+    const missing = [];
+    if (!accidentModel) missing.push("사고차량 차종");
+    if (!accidentNumber) missing.push("사고차량 차량번호");
+    if (!receivedDate) missing.push("입고일자");
+    if (!expectedOutDate) missing.push("출고예정일자");
+    if (missing.length > 0) { alert(`${missing.join(", ")} 입력이 안 됐습니다.`); return; }
+  }
+
+  if (isUnavailable(status) && !unavailableReason) {
+    alert("출고불가사유를 입력해야 함");
     return;
   }
 
-  const shouldUseScheduleInfo = usesScheduleInfo(status);
-
-  if (shouldUseScheduleInfo) {
-    const missing = [];
-    if (!accidentVehicle) missing.push("사고차량");
-    if (!receivedDate) missing.push("입고일자");
-    if (!expectedOutDate) missing.push("출고예정일자");
-
-    if (missing.length > 0) {
-      alert(`${missing.join(", ")} 입력이 안 됐습니다.`);
-      return;
-    }
-  }
-
+  const schedule = usesScheduleInfo(status);
+  const unavailable = isUnavailable(status);
   const payload = {
-    model,
-    number,
-    fuel,
-    insurance,
-    driverAge,
-    status,
-    fuelLevel,
-    note: shouldUseScheduleInfo ? "" : note,
-    accidentVehicle: shouldUseScheduleInfo ? accidentVehicle : "",
-    receivedDate: shouldUseScheduleInfo ? receivedDate : "",
-    expectedOutDate: shouldUseScheduleInfo ? expectedOutDate : "",
-    specialNote: shouldUseScheduleInfo ? specialNote : "",
+    model, number, fuel, insurance, driverAge, status, fuelLevel,
+    accidentModel: schedule ? accidentModel : "",
+    accidentNumber: schedule ? accidentNumber : "",
+    accidentVehicle: schedule ? [accidentModel, accidentNumber].filter(Boolean).join(" ") : "",
+    receivedDate: schedule ? receivedDate : "",
+    expectedOutDate: schedule ? expectedOutDate : "",
+    specialNote: schedule ? specialNote : "",
+    unavailableReason: unavailable ? unavailableReason : "",
+    note: "",
     updatedAt
   };
 
   try {
-    if (editingId) {
-      await updateDoc(doc(db, "vehicles", editingId), payload);
-    } else {
-      await addDoc(vehiclesRef, payload);
-    }
+    if (editingId) await updateDoc(doc(db, "vehicles", editingId), payload);
+    else await addDoc(vehiclesRef, payload);
     closeForm();
   } catch (err) {
     console.error(err);
@@ -728,14 +730,8 @@ async function saveVehicle() {
 async function deleteVehicle() {
   if (!editingId) return;
   if (!confirm("삭제할까요?")) return;
-
-  try {
-    await deleteDoc(doc(db, "vehicles", editingId));
-    closeForm();
-  } catch (err) {
-    console.error(err);
-    alert("삭제 중 오류가 났습니다.");
-  }
+  try { await deleteDoc(doc(db, "vehicles", editingId)); closeForm(); }
+  catch (err) { console.error(err); alert("삭제 중 오류가 났습니다."); }
 }
 
 function goHome() {
@@ -767,7 +763,7 @@ window.closeDetail = closeDetail;
 window.openForm = openForm;
 window.closeForm = closeForm;
 window.saveVehicle = saveVehicle;
-window.toggleWaitingFields = toggleWaitingFields;
+window.toggleFields = toggleFields;
 window.deleteVehicle = deleteVehicle;
 window.goHome = goHome;
 window.clearHomeExpectedOutDateFilter = clearHomeExpectedOutDateFilter;
@@ -776,12 +772,10 @@ window.runHomeExpectedOutDateSearch = runHomeExpectedOutDateSearch;
 onSnapshot(vehiclesRef, (snapshot) => {
   vehicles = snapshot.docs
     .map(d => ({ id: d.id, ...d.data() }))
-    .filter(v => v.status === "대기차량" || v.status === "출고차량" || v.status === "예약차량")
+    .filter(v => ["대기차량", "출고차량", "예약차량", "출고불가차량"].includes(v.status))
     .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
-
   renderStats();
   renderVehicles();
-
   if (selectedVehicleId) {
     const current = vehicles.find(v => v.id === selectedVehicleId);
     if (current) fillDetail(current);
