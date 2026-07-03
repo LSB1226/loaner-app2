@@ -357,6 +357,30 @@
       .hero-illust { width: 132px; height: 84px; right: -30px; top: 32px; opacity: .18; }
     }
 
+
+    /* 마지막 수정: 상단 브랜드/제목/차량추가 위치 조정 */
+    .hero { min-height: 168px; padding: 12px 8px 0; }
+    .hero-top { display:block; margin-top: 52px; }
+    .brand { margin-top: 0; font-size: 18px; gap: 10px; }
+    .brand-dot { width: 16px; height: 16px; border-width: 4px; }
+    .hero-title { margin: 8px 0 0; font-size: 48px; }
+    .hero::before { top: 36px; right: 0; width: 290px; height: 165px; }
+    .hero-illust { top: 52px; right: 8px; width: 260px; height: 158px; opacity: .42; }
+    .add-area { display:flex; justify-content:flex-end; align-items:center; margin: 0 0 10px; position:relative; z-index:6; }
+    .add-area .btn-add { padding: 14px 22px; font-size: 16px; border-radius: 16px; }
+
+    @media (max-width: 700px) {
+      .hero { min-height: 82px; padding: 0 2px; }
+      .hero-top { margin-top: 18px; }
+      .brand { font-size: 13px; gap: 7px; }
+      .brand-dot { width: 12px; height: 12px; border-width: 3px; }
+      .hero-title { font-size: 30px; margin: 5px 0 0; letter-spacing: -1.4px; }
+      .hero::before { width: 132px; height: 80px; right: -42px; top: 24px; opacity: .25; }
+      .hero-illust { width: 122px; height: 78px; right: -30px; top: 29px; opacity: .16; }
+      .add-area { margin: 0 0 8px; }
+      .add-area .btn-add { width: 100%; justify-content:center; padding: 11px 12px; font-size: 14px; border-radius: 13px; }
+    }
+
   </style>
 </head>
 <body>
@@ -378,9 +402,12 @@
 
       <div class="hero-top">
         <div class="brand"><span class="brand-dot"></span><span>중부1급모터스</span></div>
-        <button class="btn btn-primary btn-add" onclick="openForm()">🚘 차량 추가</button>
       </div>
       <h1 class="hero-title">대차 현황</h1>
+    </div>
+
+    <div class="add-area">
+      <button class="btn btn-primary btn-add" onclick="openForm()">🚘 차량 추가</button>
     </div>
 
     <div class="home-filter" id="homeFilter">
