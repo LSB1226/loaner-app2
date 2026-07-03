@@ -218,7 +218,8 @@
     .card-title { font-size: 22px; font-weight: 950; margin: 4px 0 16px; color:#14203a; }
 
     .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 14px; }
-    .vehicle-item { border: 1px solid #e8eef7; border-radius: 24px; padding: 17px; background: #fff; box-shadow: 0 10px 24px rgba(16,24,40,.05); }
+    .vehicle-item { border: 1px solid #e8eef7; border-radius: 24px; padding: 17px; background: #fff; box-shadow: 0 10px 24px rgba(16,24,40,.05); transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease; scroll-margin-top: 18px; }
+    .vehicle-item.search-hit { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,.12), 0 14px 30px rgba(37,99,235,.16); transform: translateY(-1px); }
     .vehicle-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
     .vehicle-model { font-weight: 950; font-size: 20px; color:#14203a; }
     .vehicle-number { font-size: 14px; color: #667493; margin-top: 4px; font-weight:800; }
@@ -428,7 +429,7 @@
         <div class="toolbar-left-sub">차종 및 차량번호를 입력하면 바로 검색됩니다.</div>
       </div>
       <div class="toolbar-right">
-        <input id="searchInput" class="search" type="text" placeholder="차종 및 차량번호 입력" oninput="renderVehicles()" />
+        <input id="searchInput" class="search" type="text" placeholder="차종 및 차량번호 입력" oninput="jumpToSearchMatch()" />
         <button class="btn btn-outline" onclick="goHome()">처음화면</button>
       </div>
     </div>
@@ -521,6 +522,7 @@ let vehicles = [];
 let selectedTab = null;
 let selectedVehicleId = null;
 let editingId = null;
+let searchMatchId = null;
 
 function nowStamp() {
   const now = new Date();
@@ -639,6 +641,7 @@ function runHomeExpectedOutDateSearch() {
   selectedVehicleId = null;
   const searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.value = "";
+  searchMatchId = null;
   document.getElementById("toolbar").classList.remove("show");
   document.getElementById("homeFilter").classList.remove("hide");
   paintActiveTab();
@@ -668,26 +671,57 @@ function vehicleMatchesQuery(v, q) {
   });
 }
 
-function renderVehicles() {
-  const list = document.getElementById("vehicleList");
-  const q = document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
+function getCurrentListVehicles() {
   const homeExpectedOutDateFilter = normalizeDateValue(document.getElementById("homeExpectedOutDateFilter")?.value || "");
   let filtered = vehicles.filter(v => v.model && v.number);
 
   if (selectedTab) {
     if (selectedTab !== "전체") filtered = filtered.filter(v => v.status === selectedTab);
   } else {
-    if (!homeExpectedOutDateFilter) {
-      list.innerHTML = "";
-      document.getElementById("vehicleCard").classList.remove("show");
-      return;
-    }
+    if (!homeExpectedOutDateFilter) return [];
     filtered = filtered.filter(v => normalizeDateValue(v.expectedOutDate || v.expectedOutDateText || v.expected_out_date || "") === homeExpectedOutDateFilter);
+  }
+
+  return filtered;
+}
+
+function jumpToSearchMatch() {
+  const q = document.getElementById("searchInput")?.value.trim() || "";
+  searchMatchId = null;
+
+  if (!q) {
+    renderVehicles();
+    return;
+  }
+
+  const target = getCurrentListVehicles().find(v => vehicleMatchesQuery(v, q));
+  searchMatchId = target ? target.id : null;
+  renderVehicles();
+
+  if (target) {
+    setTimeout(() => {
+      const el = document.getElementById(`vehicle-card-${target.id}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 40);
+  }
+}
+
+function renderVehicles() {
+  const list = document.getElementById("vehicleList");
+  const homeExpectedOutDateFilter = normalizeDateValue(document.getElementById("homeExpectedOutDateFilter")?.value || "");
+
+  if (!selectedTab && !homeExpectedOutDateFilter) {
+    list.innerHTML = "";
+    document.getElementById("vehicleCard").classList.remove("show");
+    return;
+  }
+
+  if (!selectedTab) {
     document.getElementById("vehicleCard").classList.add("show");
     document.querySelector("#vehicleCard .card-title").textContent = `${homeExpectedOutDateFilter} 출고예정 차량`;
   }
 
-  if (q) filtered = filtered.filter(v => vehicleMatchesQuery(v, q));
+  const filtered = getCurrentListVehicles();
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="muted-empty">검색 결과가 없습니다.</div>';
@@ -696,8 +730,9 @@ function renderVehicles() {
 
   list.innerHTML = filtered.map(vehicle => {
     const unavailable = vehicle.status === "출고불가차량";
+    const hitClass = searchMatchId === vehicle.id ? " search-hit" : "";
     return `
-    <div class="vehicle-item">
+    <div class="vehicle-item${hitClass}" id="vehicle-card-${escapeHtml(vehicle.id)}">
       <div class="vehicle-top">
         <div><div class="vehicle-model">${escapeHtml(vehicle.model || "")}</div><div class="vehicle-number">${escapeHtml(vehicle.number || "")}</div></div>
         <div class="${badgeClass(vehicle.status)}">${escapeHtml(vehicle.status || "")}</div>
@@ -727,6 +762,7 @@ function renderVehicles() {
 function selectTab(tab) {
   if (selectedTab === tab) { goHome(); return; }
   selectedTab = tab;
+  searchMatchId = null;
   paintActiveTab();
   document.getElementById("homeFilter").classList.add("hide");
   document.getElementById("toolbar").classList.add("show");
@@ -852,6 +888,7 @@ async function deleteVehicle() {
 function goHome() {
   selectedTab = null;
   selectedVehicleId = null;
+  searchMatchId = null;
   document.getElementById("searchInput").value = "";
   document.getElementById("toolbar").classList.remove("show");
   document.getElementById("homeFilter").classList.remove("hide");
@@ -883,6 +920,7 @@ window.deleteVehicle = deleteVehicle;
 window.goHome = goHome;
 window.clearHomeExpectedOutDateFilter = clearHomeExpectedOutDateFilter;
 window.runHomeExpectedOutDateSearch = runHomeExpectedOutDateSearch;
+window.jumpToSearchMatch = jumpToSearchMatch;
 
 onSnapshot(vehiclesRef, (snapshot) => {
   vehicles = snapshot.docs
