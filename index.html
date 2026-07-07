@@ -431,6 +431,66 @@
       .hero-illust { width: 120px; height: 76px; right: -30px; top: 34px; opacity: .12; }
     }
 
+
+    /* 요청수정: 메인 첫 화면 한눈에 보이도록 최종 압축 */
+    .wrap { max-width: 860px; padding-top: 10px; }
+    .hero { min-height: 118px; }
+    .hero-top { margin-top: 34px; }
+    .hero-title { font-size: 38px; margin-top: 4px; }
+    .home-filter { padding: 18px 22px; margin: 0 0 16px; border-radius: 22px; }
+    .home-filter-title { font-size: 19px; margin-bottom: 13px; }
+    .grid { gap: 12px; }
+    .stat {
+      min-height: 116px;
+      padding: 18px 24px;
+      border-radius: 24px;
+      grid-template-columns: 86px 1fr 18px;
+      gap: 18px;
+    }
+    .stat-icon { width: 76px; height: 76px; }
+    .stat-icon svg { width: 34px; height: 34px; }
+    .stat-count { margin: 7px 0 0; }
+    .stat-count strong { font-size: 38px; }
+    .stat-label { font-size: 18px; }
+    .stat-desc { display: none; }
+    .chev { font-size: 32px; }
+
+    @media (max-width: 700px) {
+      .wrap { padding: 8px 8px 18px; }
+      .hero { min-height: 78px; padding-top: 0; }
+      .add-area { top: 0; right: 0; }
+      .add-area .btn-add { padding: 7px 9px; font-size: 12px; border-radius: 10px; }
+      .hero-top { margin-top: 25px; }
+      .brand { font-size: 12px; }
+      .brand-dot { width: 10px; height: 10px; border-width: 2px; }
+      .hero-title { font-size: 26px; margin-top: 3px; }
+      .hero::before, .hero-illust { display: none; }
+
+      .home-filter { padding: 10px; margin: 0 0 8px; border-radius: 16px; }
+      .home-filter-title { font-size: 14px; margin-bottom: 7px; gap: 6px; }
+      .home-filter-title svg { width: 16px; height: 16px; }
+      .home-filter-row { grid-template-columns: 1fr auto auto; gap: 5px; }
+      .date-filter, .search, .form-group input, .form-group select { padding: 9px 10px; font-size: 13px; border-radius: 10px; }
+      .home-filter-row .btn { padding: 9px 9px; font-size: 12px; }
+
+      .grid { gap: 7px; }
+      .stat {
+        min-height: 66px;
+        grid-template-columns: 44px 1fr 10px;
+        padding: 9px 11px;
+        gap: 9px;
+        border-radius: 16px;
+      }
+      .stat-icon { width: 42px; height: 42px; }
+      .stat-icon svg { width: 20px; height: 20px; }
+      .stat-label { font-size: 14px; line-height: 1.15; }
+      .stat-count { margin: 3px 0 0; }
+      .stat-count strong { font-size: 25px; }
+      .unit { font-size: 11px; padding: 3px 6px; border-radius: 8px; }
+      .reserved-note { font-size: 10px; }
+      .chev { font-size: 23px; }
+    }
+
   </style>
 </head>
 <body>
@@ -562,7 +622,7 @@
         </div>
         <div class="form-two">
           <div class="form-group"><label>운전자연령</label><input id="formDriverAge" /></div>
-          <div class="form-group"><label>상태</label><select id="formStatus" onchange="toggleFields()"><option>대기차량</option><option>출고차량</option><option>예약차량</option><option>출고불가차량</option><option>출고완료차량</option></select></div>
+          <div class="form-group"><label>상태</label><select id="formStatus" onchange="toggleFields()"><option>대기차량</option><option>출고차량</option><option>예약차량</option><option>출고불가차량</option></select></div>
         </div>
         <div class="form-group"><label>유류량</label><select id="formFuelLevel"><option>10%</option><option>20%</option><option>30%</option><option>40%</option><option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option></select></div>
 
