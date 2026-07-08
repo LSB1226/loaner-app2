@@ -771,7 +771,8 @@ function toggleFields() {
 
 function renderStats() {
   const validVehicles = vehicles.filter(v => v.model && v.number);
-  document.getElementById("count-all").textContent = validVehicles.length;
+  const activeVehicles = validVehicles.filter(v => v.status !== "출고완료차량");
+  document.getElementById("count-all").textContent = activeVehicles.length;
   document.getElementById("count-ready").textContent = validVehicles.filter(v => v.status === "대기차량").length;
   document.getElementById("count-out").textContent = validVehicles.filter(v => v.status === "출고차량").length;
   document.getElementById("count-completed").textContent = validVehicles.filter(v => v.status === "출고완료차량").length;
@@ -830,10 +831,16 @@ function getCurrentListVehicles() {
   let filtered = vehicles.filter(v => v.model && v.number);
 
   if (selectedTab) {
-    if (selectedTab !== "전체") filtered = filtered.filter(v => v.status === selectedTab);
+    if (selectedTab === "전체") {
+      filtered = filtered.filter(v => v.status !== "출고완료차량");
+    } else {
+      filtered = filtered.filter(v => v.status === selectedTab);
+    }
   } else {
     if (!homeExpectedOutDateFilter) return [];
-    filtered = filtered.filter(v => normalizeDateValue(v.expectedOutDate || v.expectedOutDateText || v.expected_out_date || "") === homeExpectedOutDateFilter);
+    filtered = filtered
+      .filter(v => v.status !== "출고완료차량")
+      .filter(v => normalizeDateValue(v.expectedOutDate || v.expectedOutDateText || v.expected_out_date || "") === homeExpectedOutDateFilter);
   }
 
   return filtered;
