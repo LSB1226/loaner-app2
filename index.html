@@ -1048,7 +1048,8 @@ async function saveVehicle() {
           accidentNumber: accidentNumberOf(existingVehicle),
           accidentVehicle: accidentTextOf(existingVehicle),
           receivedDate: existingVehicle.receivedDate || "",
-          expectedOutDate: existingVehicle.expectedOutDate || "",
+          // 출고차량에서 대기차량으로 변경되는 순간의 실제 날짜와 시간을 출고일자로 저장
+          expectedOutDate: updatedAt,
           specialNote: existingVehicle.specialNote || "",
           unavailableReason: "",
           note: "",
